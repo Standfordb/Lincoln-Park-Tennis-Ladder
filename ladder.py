@@ -1,71 +1,19 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 from flask_sqlalchemy import SQLAlchemy
-from tkinter import messagebox
 from datetime import datetime
+from tkinter import messagebox
 import re
+import constants as c
+
 
 # Create and configure application
 app = Flask(__name__)
 app.secret_key = "Sb39MDCIyj1kWgEKVzpmkQ"
-# Need to fix path to sqlite database. Should not be hardcoded. Need to import os and update path
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///E:\\VS Code\\Applications\\Python\\LP Tennis Ladder\\static\\ladder.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///ladder.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.app_context().push()
 db = SQLAlchemy(app)
 
-
-# Create a connecting table between users and matches
-user_match = db.Table("user_match",
-                      db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
-                      db.Column("match_id", db.Integer, db.ForeignKey("match.id"))
-                      )
-
-# Create a connecting table between users and temp matches
-user_temp = db.Table("user_temp",
-                      db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
-                      db.Column("match_id", db.Integer, db.ForeignKey("temp_match.id"))
-                      )
-   
-
-# Create database class for"User" table
-class User(db.Model): 
-    id = db.Column(db.Integer(), primary_key=True)
-    first= db.Column(db.String(255), nullable=False)
-    last = db.Column(db.String(255), nullable=False)
-    username = db.Column(db.String(255), unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-    email = db.Column(db.String(255), unique=True, nullable=False)
-    phone = db.Column(db.String(255))
-    rank = db.Column(db.Integer(), default=0)
-    matches = db.relationship("Match", secondary=user_match, backref="players")
-    temp_matches = db.relationship("Temp_match", secondary=user_temp, backref="players")
-    matches_won = db.relationship("Match", backref="winner", foreign_keys="Match.winner_id", lazy=True)
-    matches_lost = db.relationship("Match", backref="loser", foreign_keys="Match.loser_id", lazy=True)
-    temp_matches_won = db.relationship("Temp_match", backref="winner", foreign_keys="Temp_match.winner_id", lazy=True)
-    temp_matches_lost = db.relationship("Temp_match", backref="loser", foreign_keys="Temp_match.loser_id", lazy=True)
-    date_joined = db.Column(db.Date, default=datetime.utcnow)
-
-    # Create a representation for the User class that is the users username
-    def __repr__(self):
-        return f"<User: {self.username}>"
-
-# Create database class for "Match" table    
-class Match(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    score = db.Column(db.String(50))
-    winner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    loser_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    date_played = db.Column(db.Date, default=datetime.utcnow)
-
-# Create a temporary match table to hold matches while they wait for confirmation
-class Temp_match(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    score = db.Column(db.String(50))
-    winner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    loser_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    submit_by = db.Column(db.Integer, nullable=False)
-    is_confirmed = db.Column(db.Boolean, default=False, nullable=False)
-    date_played = db.Column(db.Date, default=datetime.utcnow)
                             
 # Define Routes
 #
@@ -75,7 +23,7 @@ class Temp_match(db.Model):
 def index():
     if request.method == "GET":
         # Grab the players to populate the rankings list
-        players = User.query.filter(User.rank < 26).all()
+        players = get_players()
         return render_template("index.html", players=players)
     elif request.method == "POST":
         # Get the login information from the POST request
@@ -84,9 +32,7 @@ def index():
         # Check username and password against database and if valid log user in
         if validate_credentials(username, password):
             create_session(username)
-            # Send the players and users username to the index page
-            players = get_players()
-            return redirect(url_for("index", players=players))
+            return redirect("/")
         else:
             # If username and password dont match database give an error message
             messagebox.showerror("Error", "Username or password incorrect. Please try again")
@@ -123,38 +69,12 @@ def create():
     email = request.form.get("email").strip().upper()
     phone = request.form.get("phone")
     
-    # Confirm form was submitted with all required data
-    if not first or not last or not username or not password or not email:
-        messagebox.showerror("Error", "Missing required data. Please make sure form is complete.")
-        return redirect("/register")
-    # Check email and password formatting
-    elif not email_regex(email):
-        messagebox.showerror("Error", "Please enter a valid email address")
-        return redirect("/register")
-    # Check password formatting
-    elif not password_regex(password):
-        messagebox.showerror("Error", "Invalid character in password. Valid characters: A-Z, 0-9, !, @, #, $, %, *, _, =, +, ^, &")
-    # Check if username is taken
-    elif username_taken(username):
-        messagebox.showerror("Error", "Username already taken. Please select a new username.")
-        return redirect("/register")
-    # Check if email is taken 
-    elif email_taken(email):
-        messagebox.showerror("Error", "Email already in use. Please use a different email.")
-        return redirect("/register")
-    elif phone:
-        if not phone_regex(phone):
-            messagebox.showerror("Error", "Phone number in wrong format. Correct format: (###)###-####")
-            return redirect("/register")
-    elif password_not_match(password, confirm):
-        messagebox.showerror("Error", "Passwords do not match. Please re-enter.")
-        return redirect("/register")
-    # If everything looks good create the new user in the database
-    else:
+    if validate_registration(first, last, username, password, email, confirm):
         create_user(first, last, username, password, email, phone)
         create_session(username)
-        players = get_players()
-        return redirect(url_for("index", password=password, players=players))
+        return redirect("/")
+    else:
+        return redirect("/register")
 
  # Route to collect match data from a user and store it in a temporary databease to await confirmation   
 @app.route("/input", methods=["GET", "POST"])
@@ -211,7 +131,8 @@ def redirect_profile():
     profile, stats = get_profile(session["USER"])
     return redirect(url_for("profile", profile=profile, stats=stats, id=profile.id))
 
-#Define independant functions
+
+#Define helper functions
 #
 #
 # Check if username is already taken
@@ -376,14 +297,14 @@ def get_profile(id):
 
 # Get opponents within proper rank range
 def get_opponents(rank):
-    x = 3
     ranks = []
     opponents = []
-    for i in range(-x, x):
-        y = i + x
+    j = 0
+    for i in range(-c.SPREAD, c.SPREAD + 1):
         ranks.append(rank + i)
-        opponents.append(User.query.filter_by(rank=ranks[y]).first())
-    opponents.pop(x)
+        opponents.append(User.query.filter_by(rank=ranks[j]).first())
+        j += 1
+    opponents.pop(c.SPREAD)
     return opponents
 
 # Update ranks from all match data
@@ -449,9 +370,96 @@ def password_regex(password):
         return False
 
 def phone_regex(phone):
-    regex = re.compile("\([0-9]{3}\)[0-9]{3}-[0-9]{4}")
+    regex = re.compile("^\(\d{3}\)\d{3}-\d{4}$")
     p = regex.match(phone)
     if p:
         return True
     else:
         return False
+    
+# Validate registration form data
+def validate_registration(first, last, username, password, email, confirm):
+    # Confirm form was submitted with all required data
+    if not first or not last or not username or not password or not email:
+        messagebox.showerror("Error", "Missing required data. Please make sure form is complete.")
+        return False
+    # Check email and password formatting
+    elif not email_regex(email):
+        messagebox.showerror("Error", "Please enter a valid email address")
+        return False
+    # Check password formatting
+    elif not password_regex(password):
+        messagebox.showerror("Error", "Invalid character in password. Valid characters: A-Z, 0-9, !, @, #, $, %, *, _, =, +, ^, &")
+        return False
+    # Check if username is taken
+    elif username_taken(username):
+        messagebox.showerror("Error", "Username already taken. Please select a new username.")
+        return False
+    # Check if email is taken 
+    elif email_taken(email):
+        messagebox.showerror("Error", "Email already in use. Please use a different email.")
+        return False
+    elif password_not_match(password, confirm):
+        messagebox.showerror("Error", "Passwords do not match. Please re-enter.")
+        return False
+    else:
+        return True
+
+
+#Create tables and classes for database
+#
+#
+#
+
+# Create a connecting table between users and matches
+user_match = db.Table("user_match",
+                      db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
+                      db.Column("match_id", db.Integer, db.ForeignKey("match.id"))
+                      )
+
+# Create a connecting table between users and temp matches
+user_temp = db.Table("user_temp",
+                      db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
+                      db.Column("match_id", db.Integer, db.ForeignKey("temp_match.id"))
+                      )
+
+
+# Create database class for"User" table
+class User(db.Model): 
+    id = db.Column(db.Integer(), primary_key=True)
+    first= db.Column(db.String(255), nullable=False)
+    last = db.Column(db.String(255), nullable=False)
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    phone = db.Column(db.String(255))
+    rank = db.Column(db.Integer(), default=0)
+    matches = db.relationship("Match", secondary=user_match, backref="players")
+    temp_matches = db.relationship("Temp_match", secondary=user_temp, backref="players")
+    matches_won = db.relationship("Match", backref="winner", foreign_keys="Match.winner_id", lazy=True)
+    matches_lost = db.relationship("Match", backref="loser", foreign_keys="Match.loser_id", lazy=True)
+    temp_matches_won = db.relationship("Temp_match", backref="winner", foreign_keys="Temp_match.winner_id", lazy=True)
+    temp_matches_lost = db.relationship("Temp_match", backref="loser", foreign_keys="Temp_match.loser_id", lazy=True)
+    date_joined = db.Column(db.Date, default=datetime.utcnow)
+
+    # Create a representation for the User class that is the users username
+    def __repr__(self):
+        return f"<User: {self.username}>"
+
+# Create database class for "Match" table    
+class Match(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    score = db.Column(db.String(50))
+    winner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    loser_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    date_played = db.Column(db.Date, default=datetime.utcnow)
+
+# Create a temporary match table to hold matches while they wait for confirmation
+class Temp_match(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    score = db.Column(db.String(50))
+    winner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    loser_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    submit_by = db.Column(db.Integer, nullable=False)
+    is_confirmed = db.Column(db.Boolean, default=False, nullable=False)
+    date_played = db.Column(db.Date, default=datetime.utcnow)
