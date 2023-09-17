@@ -1,0 +1,216 @@
+
+/* Default Element Selectors */
+
+body {
+    background-color: #202020;
+    color: #bbbab3;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    font-size: 16;
+}
+
+header {
+    background-color: #303030;
+    border-radius: 10px;
+    padding: 10px 10px;
+    margin: 0 auto;
+    font-size: .8em;
+    height: 65px;
+    width: 90%;
+    max-width: 700px;
+    min-width: 350;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+main {
+    background-color: #303030;
+    margin: 0px auto;
+    width: 65%;
+    max-width: 600px;
+    min-width: 300px;
+    color: #bbbab3;
+    padding: 25px;
+    border-radius: 10px;
+}
+
+a:link {
+    color: inherit;
+}
+
+a:hover {
+    color: inherit;
+}
+
+a:visited {
+    color: inherit;
+}
+
+fieldset {
+    width: 75%;
+    margin: 0 auto;
+}
+
+label {
+    display: block;
+    margin: 10px auto;
+}
+
+button {
+    background-color:#202020;
+    color:#bbbab3;
+    border-radius: 5px;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+table {
+    width: 95%;
+    margin: 20px auto;
+    padding-bottom: 20px;
+}
+
+select {
+    width: 50%;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background-color:#202020;
+    color:#bbbab3;
+}
+
+/* ID Selectors */
+
+
+#username, #password {
+    width: 100px;
+    margin: 0;
+    margin-right: 5px;
+}
+
+#register-button {
+    margin: 20px auto;
+    width: 60%;
+}
+
+#login-form {
+    margin: 0 10px 0 0;
+}
+
+#welcome {
+    padding-right: 10px;
+}
+
+#logo {
+    color:#02bd02;
+    text-decoration: none;
+}
+
+#main-box {
+    background-color:#202020;
+    width: 80%;
+    margin: 0 auto;
+    border-radius: 10px;
+    padding-top: 20px;
+}
+
+#profile-info {
+    padding-left: 10px;
+}
+
+#confirm-button-box {
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+}
+
+/* Class Selectors */
+
+.uppercase {
+    text-transform: uppercase;
+}
+
+.green-text {
+    color:#02bd02;
+}
+
+.centered {
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.divider {
+    height: 2px;
+    width: 85%;
+    max-width: 675px;
+    min-width: 325px;
+    background-color: #02bd02;
+    margin: 25px auto 25px auto;
+}
+
+.flex-inline {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.flex-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.inline {
+    display: inline;
+}
+
+.block {
+    display: block;
+}
+
+.name-column {
+    width: 90%;
+    text-align: left;
+    padding-bottom: .5em;
+}
+
+.rank-column {
+    text-align: center;
+    padding-bottom: .5em;
+}
+
+.profile-column {
+    text-align: left;
+    padding-bottom: .5em;
+}
+.plain {
+    text-decoration: none;
+}
+
+.is_win {
+    width: 50%;
+    margin-bottom: 10px;
+}
+
+.input {
+    width: 50%;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background-color:#202020;
+    color:#bbbab3;
+}
+
+.confirm-button {
+    width: 20%;
+    margin: 5px;
+}
+
+.confirm-box {
+    width: 50%; 
+    margin: -20 auto 0 auto;
+}

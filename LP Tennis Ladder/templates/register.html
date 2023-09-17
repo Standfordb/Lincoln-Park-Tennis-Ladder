@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+
+{% block header %}
+
+{% endblock %}
+
+
+{% block main %}
+
+    <form action="/create" method="post">
+        <fieldset class="flex-block">
+            <legend><h2>Register your account:</h2></legend>
+            <label for="first">First name: </label>
+            <input class="input" name="first" type="text" autocomplete="off" placeholder="First name" autofocus required>
+            <label for="last">Last name: </label>
+            <input class="input" name="last" type="text" autocomplete="off" placeholder="Last name" required>
+            <label for="username">Username: </label>
+            <input class="input" name="username" type="text" autocomplete="off" maxlength="20" minlength="6" placeholder="6-20 characters" required>
+            <label for="email">Email: </label>
+            <input class="input" name="email" type="email" autocomplete="off" placeholder="Email" required>
+            <label for="phone">Phone number: </label>
+            <input class="input" name="phone" type="tel" pattern="\([0-9]{3}\)[0-9]{3}-[0-9]{4}" autocomplete="off" placeholder="Format: (###)###-####">
+            <label for="password">Password: </label>
+            <input class="input" name="password" type="password" autocomplete="off" pattern="[a-zA-Z0-9!@#$%*_=+^&]{8,16}" required>
+            <label for="confirm">Confirm password: </label>
+            <input class="input" name="confirm" type="password" autocomplete="off" pattern="[a-zA-Z0-9!@#$%*_=+^&]{8,16}" required>
+            <button class="block" id="register-button" type="submit">Register</button>
+        </fieldset>
+    </form>
+
+{% endblock %}
