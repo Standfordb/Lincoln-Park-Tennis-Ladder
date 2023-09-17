@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+
+
+{% block header %}
+
+    {% if not 'USER' in session %}
+        <div class="flex-inline">
+            <form action="/" method="post" id="login-form">
+                    <label class="inline" for="username"><input class="input" id="username"name="username" type="text" placeholder="Username" autocomplete="off" autofocus required/></label>
+                    <label class="inline" for="password"><input class="input" id="password" name="password" type="password" placeholder="Password" required/></label>
+                    <button type="submit">Log in</button>
+            </form>
+            <a href="/register">Register</a>
+        </div>
+        {% else %}
+        <div class="flex-inline">
+            <p class="green-text" id="welcome">Welcome, <a href="/profile?id={{ session['USER'] }}" class="plain">{{ session['USERNAME'] }}!</a></p>
+            <a href="/logout">Log out</a>
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+
+{% block main %}
+
+    <div id="main-box">
+        <div id="profile-info">
+        <h1>{{ profile.first }} {{ profile.last }}</h1>
+        <p>Email: {{ profile.email }}</p>
+        <p>Phone: {{ profile.phone }}</p>
+        <p>Rank: {{ profile.rank }}</p>
+        <p>Total Matches: {{ stats[0] }}</p>
+        <p>Win %: {{ stats[1] }}</p>
+        {% if 'USER' in session %}
+            <div class="centered"><a href="/input"><button class="input" type="button">Input Match Results</button></a></div>
+            <div class="centered"><a href="/confirm"><button class="input" type="button">Confirm Match Results</button></a></div>
+        {% endif %}
+        </div>
+        <div class="divider"></div>
+        <h1 class="green-text centered">Matches:</h1>
+        <table id="matches">
+            <thead>
+                <tr>
+                    <th class="green-text profile-column">Result:</th>
+                    <th class="green-text profile-column">Score:</th>
+                    <th class="green-text profile-column">Date</th>
+                    <th class="green-text profile-column">Opponent:</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for match in profile.matches|sort(attribute='id', reverse=True)|sort(attribute='date_played', reverse=True) %}
+                    <tr>
+                        <td class="profile-column">
+                            {% if match.winner_id == profile.id %}
+                                Win
+                            {% else %}
+                                Loss
+                            {% endif %}
+                        </td>
+                        <td class="profile-column">{{ match.score }}</td>
+                        <td class="profile-column">{{ match.date_played }}</td>
+                        {% if match.winner_id == profile.id %}
+                        <td class="profile-column"><a class="plain" href="/profile?id={{ match.loser_id }}">
+                            {% if match.loser.first %}
+                                {{ match.loser.first }} {{ match.loser.last }}
+                            {% else %}
+                                [Account Deleted]
+                            {% endif %}</a></td>
+                        {% else %}
+                        <td class="profile-column"><a class="plain" href="/profile?id={{ match.winner_id }}">
+                            {% if match.winner.first %}
+                                {{ match.winner.first }} {{ match.winner.last }}
+                            {% else %}
+                                [Account Deleted]
+                            {% endif %}</a></td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
