@@ -3,85 +3,105 @@
 
 {% block header %}
 
+
 {% if not 'USER' in session %}
-    
-    <div class="flex-inline">
-        <form action="/" method="post" id="login-form">
-                <label class="inline" for="username"><input class="input" id="username"name="username" type="text" placeholder="Username" autocomplete="off" autofocus required/></label>
-                <label class="inline" for="password"><input class="input" id="password" name="password" type="password" placeholder="Password" required/></label>
-                <button type="submit">Log in</button>
+    <div class="col-auto">
+        <form action="/" method="post">    
+            <input class="no-margin" id="username" name="username" type="text" placeholder="Username" autocomplete="off" autofocus required/>
+            <input class="no-margin" id="password" name="password" type="password" placeholder="Password" required/>
+            <button class="btn btn-light no-margin" type="submit">Log in</button>
         </form>
-        <a href="/register">Register</a>
+    </div>
+    <div class="col-auto">
+        <p class="text-end"><a href="/register">No account? Register!</a></p>
     </div>
     {% else %}
-    <div class="flex-inline">
-        <p class="green-text" id="welcome">Welcome, <a href="/profile?id={{ session['USER'] }}" class="plain">{{ session['USERNAME'] }}!</a></p>
-        <a href="/logout">Log out</a>
+    <div class="col-auto">
+        <div class="row justify-content-end">
+            <div class="col-auto">
+                <p></p>
+                <p>Welcome, <a href="/profile?id={{ session['USER'] }}" class="plain">{{ session['USERNAME'] }}! </a></p>
+            </div>
+            <div class="col-auto">
+                <div class="navbar">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                    <li><a class="dropdown-item active" href="/redirect_profile">Profile</a></li>
+                    <li><a class="dropdown-item" href="/edit">Edit Profile</a></li>
+                    <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
     </div>
-
 {% endif %}
 
 {% endblock %}
 
 
 {% block main %}
-    {% if not temp_matches %}
-        <h2 class="centered">No matches to confirm</h2>
-    {%else %}            
-        {% for match in temp_matches %}
-            {% if match.submit_by == session["USER"] %}
-                <form>
-                    <fieldset>
-                        <legend><h2>Match waiting on confirmation:</h2></legend>
-                        <div class="confirm-box">
-                        <p>Score: {{ match.score }}
-                            {% if match.winner_id == session["USER"] %}
-                                (win)
-                            {% else %}
-                                (loss)
-                            {% endif %}
-                        </p>
-                        <p>Opponent: 
-                            {%if match.winner_id == session["USER"] %} 
-                                {{ match.loser.first }} {{ match.loser.last }}
-                            {% else %}
-                                {{ match.winner.first }} {{ match.winner.last }}
-                            {% endif %}</p>
-                            <p>Date played: {{ match.date_played }}</p>
-                        </div>
-                    </fieldset>
-                </form>
-            {% else %}
-                <form method="post">
-                    <fieldset>
-                        <legend><h2>Confirm your match:</h2></legend>
-                        <div class="confirm-box">
-                            <p>Score: {{ match.score}} 
-                                {% if match.winner_id == session["USER"] %}
-                                    (win)
-                                {% else %}
-                                    (loss)
-                                {% endif %}
-                            </p>
-                            <p>Opponent: 
-                                {%if match.winner_id == session["USER"] %} 
-                                    {{ match.loser.first }} {{ match.loser.last }}
-                                {% else %}
-                                    {{ match.winner.first }} {{ match.winner.last }}
-                                {% endif %}
-                            </p>
-                            <p style="padding-bottom: 10px">Date played: {{ match.date_played }}</p>
-                        </div>
-                        <div class="centered">
-                        <input name="match_id" type="hidden" value="{{ match.id }}">
-                        <button class="confirm-button" formaction="/confirm">Confirm</button>
-                        <button class="confirm-button" formaction="/dispute">Dispute</button>
-                        </div>
-                    </fieldset>
-                </form>
-            {% endif %}
-        {% endfor %}
-    {% endif %}
-    <div class="centered" style="margin-top: 25px"><form action="/redirect_profile"><button class="confirm-button" type="submit">Back to Profile</button></form></div>
-
+    <div class="container">
+        <div class="p-3"></div>
+        <div class="row justify-content-center">
+            <div class="col-auto">
+                {% if not temp_matches %}
+                    <h2>No matches to confirm</h2>
+                {%else %}            
+                    {% for match in temp_matches|sort(attribute='date_played') %}
+                        {% if match.submit_by == session["USER"] %}
+                            <form>
+                                <fieldset>
+                                    <legend><h2>Match waiting on confirmation:</h2></legend>
+                                    <p>Score: {{ match.score }}
+                                        {% if match.winner_id == session["USER"] %}
+                                            (win)
+                                        {% else %}
+                                            (loss)
+                                        {% endif %}
+                                    </p>
+                                    <p>Opponent: 
+                                        {%if match.winner_id == session["USER"] %} 
+                                            {{ match.loser.first }} {{ match.loser.last }}
+                                        {% else %}
+                                            {{ match.winner.first }} {{ match.winner.last }}
+                                        {% endif %}</p>
+                                        <p>Date played: {{ match.date_played }}</p>
+                                </fieldset>
+                            </form>
+                            <hr class="border-4 opacity-100">
+                        {% else %}
+                            <form method="post">
+                                <fieldset>
+                                    <legend><h2>Confirm your match:</h2></legend>
+                                        <p>Score: {{ match.score}} 
+                                            {% if match.winner_id == session["USER"] %}
+                                                (win)
+                                            {% else %}
+                                                (loss)
+                                            {% endif %}
+                                        </p>
+                                        <p>Opponent: 
+                                            {%if match.winner_id == session["USER"] %} 
+                                                {{ match.loser.first }} {{ match.loser.last }}
+                                            {% else %}
+                                                {{ match.winner.first }} {{ match.winner.last }}
+                                            {% endif %}
+                                        </p>
+                                        <p style="padding-bottom: 10px">Date played: {{ match.date_played }}</p>
+                                    <div>
+                                    <input name="match_id" type="hidden" value="{{ match.id }}">
+                                    <button class="btn btn-secondary" formaction="/confirm">Confirm</button>
+                                    <button class="btn btn-secondary" formaction="/dispute">Dispute</button>
+                                    </div>
+                                </fieldset>
+                            </form>
+                            <hr class="border-4 opacity-100">
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                <div class="text-center p-3"><form action="/redirect_profile"><button class="btn btn-secondary" type="submit">Back to Profile</button></form></div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from tkinter import messagebox
+import bcrypt
 import re
 import constants as c
 
@@ -30,12 +30,10 @@ def index():
         username = request.form.get("username").strip().upper()
         password = request.form.get("password").strip()
         # Check username and password against database and if valid log user in
-        if validate_credentials(username, password):
-            create_session(username)
+        if not validate_credentials(username, password):
             return redirect("/")
         else:
-            # If username and password dont match database give an error message
-            messagebox.showerror("Error", "Username or password incorrect. Please try again")
+            create_session(username)
             return redirect("/")
         
 # Registration form for new users
@@ -90,18 +88,18 @@ def input():
         score = request.form.get("score").strip()
         opponent_id = request.form.get("opponent")
         is_win = request.form.get("is_win")
-        date = request.form.get("date")
+        date_played = request.form.get("date_played")
         # Make sure no data is missing
-        if not score or not opponent_id or not is_win or not date:
-            messagebox.showerror("Error", "Please fill out all fields.")
+        if not score or not opponent_id or not is_win or not date_played:
+            flash("Please fill out all fields.")
             return redirect("/input")
         # Make sure data has not been tampered with client-side
-        elif not validate_match_data(score, opponent_id, is_win, date):
-            messagebox.showerror("Error", "Problem recording match. Please try again")
+        elif not validate_match_data(score, opponent_id, is_win, date_played):
+            flash("Problem recording match. Please try again")
             return redirect("/input")
         else:
             # If all looks good, record the match to Temp_match database to await confirmation
-            record_match(score, opponent_id, is_win, date)
+            record_match(score, opponent_id, is_win, date_played)
             profile, stats = get_profile(session["USER"])
             return redirect(url_for("profile", profile=profile, stats=stats, id=profile.id))
 
@@ -115,8 +113,7 @@ def confirm():
         match_id = request.form.get("match_id")
         confirm_match(match_id)
         update_rankings()
-        profile, stats = get_profile(session["USER"])
-        return redirect(url_for("profile", profile=profile, stats=stats, id=profile.id))
+        return redirect("/confirm")
 
 # Route to delete temp match if player disputes
 @app.route("/dispute", methods=["POST"])
@@ -124,13 +121,17 @@ def dispute():
     match_id = request.form.get("match_id")
     delete_temp_match(match_id)
     profile, stats = get_profile(session["USER"])
-    return redirect(url_for("profile", profile=profile, stats=stats, id=profile.id))
+    return redirect("/confirm")
 
 @app.route("/redirect_profile")
 def redirect_profile():    
     profile, stats = get_profile(session["USER"])
-    return redirect(url_for("profile", profile=profile, stats=stats, id=profile.id))
+    return render_template("profile.html", profile=profile, stats=stats, id=profile.id)
 
+@app.route("/edit", methods=["GET", "POST"])
+def edit():
+    user = get_user()
+    return render_template("edit.html", user=user)
 
 #Define helper functions
 #
@@ -155,8 +156,10 @@ def email_taken(email):
 def create_user(first, last, username, password, email, phone):
     # Place their starting rank at the bottom of the ladder
     rank = starting_rank()
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf8'), salt)
     # Add the user to the database
-    user = User(first=first, last=last, username=username, password=password, email=email, phone=phone, rank=rank)
+    user = User(first=first, last=last, username=username, password=hashed_password, salt=salt, email=email, phone=phone, rank=rank)
     db.session.add(user)
     db.session.commit()
     return
@@ -174,8 +177,10 @@ def update_ranks():
 def validate_credentials(username, password):
     user = User.query.filter_by(username=username).first()
     if not user:
+        flash("Username or password incorrect. Please try again.")
         return False
-    elif password != user.password:
+    elif bcrypt.hashpw(password.encode('utf8'), user.salt) != user.password:
+        flash("Username or password incorrect. Please try again.")
         return False
     else:
         return True
@@ -244,7 +249,7 @@ def confirm_match(id):
     return
 
 # Validate match data
-def validate_match_data(score, opponent_id, is_win, date):
+def validate_match_data(score, opponent_id, is_win, date_played):
     # Get the user who is submitting the match
     user = get_user()
     # Find the possible opponents for this user
@@ -260,11 +265,14 @@ def validate_match_data(score, opponent_id, is_win, date):
         return False
     # Set the date to a date type
     try:
-        datetime.strptime(date, "%Y-%m-%d")
+        match_date = datetime.strptime(date_played, "%Y-%m-%d")
     except:
         return False
+    if match_date > datetime.today():
+        flash("Match date can not be in the future.")
+        return False
     # Check if opponent matches possible opponents by rank
-    if not opponent in opponents:
+    elif not opponent in opponents:
         return False
     # Check if win_against is a 0 or 1
     elif is_win not in win_check:
@@ -381,26 +389,26 @@ def phone_regex(phone):
 def validate_registration(first, last, username, password, email, confirm):
     # Confirm form was submitted with all required data
     if not first or not last or not username or not password or not email:
-        messagebox.showerror("Error", "Missing required data. Please make sure form is complete.")
+        flash("Missing required data. Please make sure form is complete.")
         return False
     # Check email and password formatting
     elif not email_regex(email):
-        messagebox.showerror("Error", "Please enter a valid email address")
+        flash("Please enter a valid email address")
         return False
     # Check password formatting
     elif not password_regex(password):
-        messagebox.showerror("Error", "Invalid character in password. Valid characters: A-Z, 0-9, !, @, #, $, %, *, _, =, +, ^, &")
+        flash("Invalid character in password. Valid characters: A-Z, 0-9, !, @, #, $, %, *, _, =, +, ^, &")
         return False
     # Check if username is taken
     elif username_taken(username):
-        messagebox.showerror("Error", "Username already taken. Please select a new username.")
+        flash("Username already taken. Please select a new username.")
         return False
     # Check if email is taken 
     elif email_taken(email):
-        messagebox.showerror("Error", "Email already in use. Please use a different email.")
+        flash("Email already in use. Please use a different email.")
         return False
     elif password_not_match(password, confirm):
-        messagebox.showerror("Error", "Passwords do not match. Please re-enter.")
+        flash("Passwords do not match. Please re-enter.")
         return False
     else:
         return True
@@ -431,6 +439,7 @@ class User(db.Model):
     last = db.Column(db.String(255), nullable=False)
     username = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
+    salt = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     phone = db.Column(db.String(255))
     rank = db.Column(db.Integer(), default=0)

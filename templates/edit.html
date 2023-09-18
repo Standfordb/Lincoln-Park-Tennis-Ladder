@@ -43,39 +43,21 @@
 {% block main %}
 
     <div class="container">
-        <div class="p-5"></div>
-        <div class="row">
-        <div class="col text-center"><h1>LP Ladder Ranks:</h1></div>
-        </div>
-        <hr class="border-4 opacity-100">
+        <div class="p-3"></div>
         <div class="row justify-content-center">
-            <div class="col-9 p-3">
-                <table class="table table-dark table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Name:</th>
-                            <th>Rank:</th>
-                            <th>Win:</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for players in players|sort(attribute='rank') %}
-                            <tr>
-                                <td><a href="/profile?id={{ players.id }}" style="text-decoration: none">{{ players.first }} {{ players.last }}</a></td>
-                                <td>{{ players.rank }}</td>
-                                <td>{% if players.matches %}
-                                        {{ ((players.matches_won|count/players.matches|count)*100)|round|int }}%
-                                    {% else %}
-                                        N/A
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="col-auto">
+                <form action="/edit" method="post">
+                    <label class="form-label" for="name"><h1>{{ user.first }} {{ user.last }}</h1><input name="name" class="form-control" placeholder="Update name"></label>
+                    <label class="form-label" for="name"></label><p>Username: {{ user.username }}<input name="username" class="form-control" placeholder="Update username"></p>
+                    <label class="form-label" for="name"></label><p>Email: {{ user.email }}<input name="username" class="form-control" placeholder="Update email address"></p>
+                    <label class="form-label" for="name"></label><p>Phone: {{ user.phone }} <input name="username" class="form-control" placeholder="Update phone number"></p>
+                    <button class="btn btn-secondary btn-sm" type="button">Change password</button>
+                    <div class="text-center p-3">
+                        <button class="btn btn-secondary" type="submit">Update Profile</button>
+                        <a href="/redirect_profile"><button class="btn btn-secondary" type="button">Cancel Changes</button></a>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
-
 
 {% endblock %}

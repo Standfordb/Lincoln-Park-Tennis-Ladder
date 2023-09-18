@@ -3,49 +3,95 @@
 
 {% block header %}
 
+
 {% if not 'USER' in session %}
-    
-    <div class="flex-inline">
-        <form action="/" method="post" id="login-form">
-                <label class="inline" for="username"><input class="input" id="username"name="username" type="text" placeholder="Username" autocomplete="off" autofocus required/></label>
-                <label class="inline" for="password"><input class="input" id="password" name="password" type="password" placeholder="Password" required/></label>
-                <button type="submit">Log in</button>
+    <div class="col-auto">
+        <form action="/" method="post">    
+            <input class="no-margin" id="username" name="username" type="text" placeholder="Username" autocomplete="off" autofocus required/>
+            <input class="no-margin" id="password" name="password" type="password" placeholder="Password" required/>
+            <button class="btn btn-light no-margin" type="submit">Log in</button>
         </form>
-        <a href="/register">Register</a>
+    </div>
+    <div class="col-auto">
+        <p class="text-end"><a href="/register">No account? Register!</a></p>
     </div>
     {% else %}
-    <div class="flex-inline">
-        <p class="green-text" id="welcome">Welcome, <a href="/profile?id={{ session['USER'] }}" class="plain">{{ session['USERNAME'] }}!</a></p>
-        <a href="/logout">Log out</a>
+    <div class="col-auto">
+        <div class="row justify-content-end">
+            <div class="col-auto">
+                <p></p>
+                <p class="no-margin">Welcome, <a href="/profile?id={{ session['USER'] }}" class="plain">{{ session['USERNAME'] }}!</a></p>
+            </div>
+            <div class="col-auto">
+                <div class="navbar">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                    <li><a class="dropdown-item active" href="/redirect_profile">Profile</a></li>
+                    <li><a class="dropdown-item" href="/edit">Edit Profile</a></li>
+                    <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
     </div>
-
 {% endif %}
 
 {% endblock %}
 
 
 {% block main %}
-
-    <form action="/input" method="post">
-        <fieldset class="flex-block">
-            <legend><h2>Record your match:</h2></legend>
-            <label for="score">Score: </label>
-            <input class="input" name="score" type="text" autocomplete="off" placeholder="Format: #-#(#-#) #-#(#-#)" autofocus required>
-            <label for="opponent">Opponent: </label>
-            <select class="input" name="opponent" required>
-                {% for opponent in opponents %}
-                    {% if opponent.id %}
-                        <option value="{{ opponent.id }}">{{ opponent.first }} {{ opponent.last }} - Rank {{ opponent.rank }}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-            <div class="inline" style="margin: 20px auto">
-                <label for="is_win" class="inline"><input name="is_win" type="radio" value="0" required>Win against</label>
-                <label for="is_win" class="inline"><input name="is_win" type="radio" value="1" required>Loss against</label>
+    <div class="container">
+        <div class="p-3"></div>
+            <h2 class="text-center">Record your match:</h2>
+            <hr class="border-4 opacity-100">
+                <div class="row justify-content-center">
+                    <div class="col-4 p-3">
+            <form action="/input" method="post">
+                    <fieldset>
+                        <div class="mb-3">
+                            <label for="score" class="form-label"><strong>Score: </strong></label>
+                            <input class="form-control" name="score" type="text" autocomplete="off" placeholder="Format: #-#(#-#) #-#(#-#)" autofocus required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="opponent" class="form-label"><strong>Opponent: </strong></label>
+                            <select class="form-control" name="opponent" required>
+                                {% for opponent in opponents %}
+                                    {% if opponent.id %}
+                                        <option value="{{ opponent.id }}">{{ opponent.first }} {{ opponent.last }} - Rank {{ opponent.rank }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="p-1"></div>
+                        <div class="form-check text-start mb-3">
+                            <input class="form-check-input" name="is_win" type="radio" value="0" required>
+                            <label for="is_win" class="form--check-label">Win against</label>
+                        </div>
+                        <div class="form-check text-start mb-3">
+                            <input class="form-check-input" name="is_win" type="radio" value="1" required>
+                            <label for="is_win" class="form-check-label">Loss against</label>
+                        </div>
+                        <div class="p-1"></div>
+                        <div class="mb-3">
+                            <label for="date_played">Date played: <input name="date_played" type="date" required></label>
+                        </div>
+                        <div class="row justify-content-center p-3">
+                            <div class="col-auto">
+                                <div class="text-center">
+                                    <button class="btn btn-secondary" type="submit">Submit</button>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="text-center">
+                                    <a href="/redirect_profile"><button class="btn btn-secondary" type="button">Cancel</button></a>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
             </div>
-            <label for="date" style="text-align: center">Date played: <input class="input" name="date" type="date" required></label>
-            <button class="block" id="register-button" type="submit">Submit</button>
-        </fieldset>
-    </form>
+        </div>
+    </div>
 
 {% endblock %}
