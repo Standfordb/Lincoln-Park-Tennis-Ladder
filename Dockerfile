@@ -32,9 +32,20 @@ RUN adduser \
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
 # Leverage a bind mount to requirements.txt to avoid having to copy them into
 # into this layer.
-RUN --mount=type=cache,id= 43b0c8b4-15a7-4dcf-a5eb-55de11c127f2-/root/.cache/pip \
-    --mount=type=bind,source=requirements.txt,target=requirements.txt \
-    python -m pip install -r requirements.txt
+RUN python -m pip install bcrypt==4.0.1
+RUN python -m pip install blinker==1.6.2
+RUN python -m pip install click==8.1.7
+RUN python -m pip install colorama==0.4.6
+RUN python -m pip install Flask==2.3.3
+RUN python -m pip install Flask-SQLAlchemy==3.1.1
+RUN python -m pip install greenlet==2.0.2
+RUN python -m pip install itsdangerous==2.1.2
+RUN python -m pip install Jinja2==3.1.2
+RUN python -m pip install MarkupSafe==2.1.3
+RUN python -m pip install SQLAlchemy==2.0.20
+RUN python -m pip install typing_extensions==4.7.1
+RUN python -m pip install Werkzeug==2.3.7
+ 
 
 # Switch to the non-privileged user to run the application.
 USER appuser
