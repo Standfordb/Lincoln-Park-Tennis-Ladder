@@ -32,7 +32,7 @@ RUN adduser \
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
 # Leverage a bind mount to requirements.txt to avoid having to copy them into
 # into this layer.
-RUN --mount=type=cache,target=43b0c8b4-15a7-4dcf-a5eb-55de11c127f2/root/.cache/pip \
+RUN --mount=type=cache,id=43b0c8b4-15a7-4dcf-a5eb-55de11c127f2/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
 
