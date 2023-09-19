@@ -4,39 +4,6 @@
 {% block header %}
 
 
-{% if not 'USER' in session %}
-    <div class="col-auto">
-        <form action="/" method="post">    
-            <input class="no-margin" id="username" name="username" type="text" placeholder="Username" autocomplete="off" autofocus required/>
-            <input class="no-margin" id="password" name="password" type="password" placeholder="Password" required/>
-            <button class="btn btn-light no-margin" type="submit">Log in</button>
-        </form>
-    </div>
-    <div class="col-auto">
-        <p class="text-end"><a href="/register">No account? Register!</a></p>
-    </div>
-    {% else %}
-    <div class="col-auto">
-        <div class="row justify-content-end">
-            <div class="col-auto">
-                <p></p>
-                <p>Welcome, <a href="/profile?id={{ session['USER'] }}" class="plain">{{ session['USERNAME'] }}! </a></p>
-            </div>
-            <div class="col-auto">
-                <div class="navbar">
-                    <button class="navbar-toggler" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-dark">
-                    <li><a class="dropdown-item active" href="/redirect_profile">Profile</a></li>
-                    <li><a class="dropdown-item" href="/edit">Edit Profile</a></li>
-                    <li><a class="dropdown-item" href="/logout">Logout</a></li>
-                    </ul>
-                </div>
-            </div>
-    </div>
-{% endif %}
-
 {% endblock %}
 
 

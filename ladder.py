@@ -14,8 +14,15 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.app_context().push()
 db = SQLAlchemy(app)
 
-                            
-# Define Routes
+
+
+
+
+
+
+
+
+# Define Routes ------------------------------------------------------------------------------------
 #
 #
 # Home page and login screen for returning users
@@ -65,7 +72,7 @@ def create():
     password = request.form.get("password").strip()
     confirm = request.form.get("confirm").strip()
     email = request.form.get("email").strip().upper()
-    phone = request.form.get("phone")
+    phone = request.form.get("phone").strip()
     
     if validate_registration(first, last, username, password, email, confirm):
         create_user(first, last, username, password, email, phone)
@@ -120,7 +127,6 @@ def confirm():
 def dispute():
     match_id = request.form.get("match_id")
     delete_temp_match(match_id)
-    profile, stats = get_profile(session["USER"])
     return redirect("/confirm")
 
 @app.route("/redirect_profile")
@@ -128,12 +134,42 @@ def redirect_profile():
     profile, stats = get_profile(session["USER"])
     return render_template("profile.html", profile=profile, stats=stats, id=profile.id)
 
+# Route to edit profile information
 @app.route("/edit", methods=["GET", "POST"])
 def edit():
-    user = get_user()
-    return render_template("edit.html", user=user)
+    if request.method == "GET":
+        user = get_user()
+        return render_template("edit.html", user=user)
+    elif request.method == "POST":
+        first = request.form.get("first").strip().capitalize()
+        last = request.form.get("last").strip().capitalize()
+        username = request.form.get("username").strip().upper()
+        email = request.form.get("email").strip().upper()
+        phone = request.form.get("phone").strip()
+        new_password = request.form.get("new-password")
+        confirm_new_password = request.form.get("confirm-new-password")
+        password = request.form.get("password")
 
-#Define helper functions
+        if not validate_update(username, email, phone, new_password, confirm_new_password, password):
+            return redirect("/edit")
+        else:
+            update_profile(first, last, username, email, phone, new_password)
+            if username:
+                create_session(username)
+            return redirect("/redirect_profile")
+
+
+
+
+
+
+
+
+
+
+
+
+#Define helper functions ---------------------------------------------------------------------------
 #
 #
 # Check if username is already taken
@@ -391,19 +427,15 @@ def validate_registration(first, last, username, password, email, confirm):
     if not first or not last or not username or not password or not email:
         flash("Missing required data. Please make sure form is complete.")
         return False
-    # Check email and password formatting
     elif not email_regex(email):
-        flash("Please enter a valid email address")
+        flash("Please enter a valid email address.")
         return False
-    # Check password formatting
     elif not password_regex(password):
         flash("Invalid character in password. Valid characters: A-Z, 0-9, !, @, #, $, %, *, _, =, +, ^, &")
         return False
-    # Check if username is taken
     elif username_taken(username):
         flash("Username already taken. Please select a new username.")
         return False
-    # Check if email is taken 
     elif email_taken(email):
         flash("Email already in use. Please use a different email.")
         return False
@@ -412,9 +444,65 @@ def validate_registration(first, last, username, password, email, confirm):
         return False
     else:
         return True
+    
+# Validate update profile info
+def validate_update(username, email, phone, new_password, confirm_new_password, password):
+    user = get_user()
+    if username:
+        if username_taken(username):
+            flash("Username already taken. Please select a new username.")
+            return False
+    elif email:
+        if email_taken(email):
+            flash("Email already in use. Please use a different email.")
+            return False
+        elif not email_regex(email):
+            flash("Please enter a valid email address.")
+            return False
+    elif phone:
+        if not phone_regex(phone):
+            flash("Phone number not in valid format: (###)###-####")
+            return False
+    elif new_password:
+        if not password_regex(new_password):
+            flash("Invalid character in new password. Valid characters: A-Z, 0-9, !, @, #, $, %, *, _, =, +, ^, &")
+            return False
+        elif password_not_match(new_password, confirm_new_password):
+            flash("Passwords do not match. Please re-enter.")
+            return False
+    elif bcrypt.hashpw(password.encode('utf8'), user.salt) != user.password:
+        flash("Invalid password. Changes not saved.")
+        return False
+    return True
+
+# Update user data in database
+def update_profile(first, last, username, email, phone, new_password):
+    user = get_user()
+    if first:
+        user.first = first
+    if last:
+        user.last = last
+    if username:
+        user.username = username
+    if email:
+        user.email = email
+    if phone:
+        user.phone = phone
+    if new_password:
+        user.password = bcrypt.hashpw(new_password.encode('utf8'), user.salt)
+    db.session.commit()
+    return
 
 
-#Create tables and classes for database
+
+
+
+
+
+
+
+
+#Create tables and classes for database--------------------------------------------------------------
 #
 #
 #

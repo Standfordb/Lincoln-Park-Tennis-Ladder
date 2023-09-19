@@ -4,39 +4,6 @@
 {% block header %}
 
 
-{% if not 'USER' in session %}
-    <div class="col-auto">
-        <form action="/" method="post">    
-            <input class="no-margin" id="username" name="username" type="text" placeholder="Username" autocomplete="off" autofocus required/>
-            <input class="no-margin" id="password" name="password" type="password" placeholder="Password" required/>
-            <button class="btn btn-light no-margin" type="submit">Log in</button>
-        </form>
-    </div>
-    <div class="col-auto">
-        <p class="text-end"><a href="/register">No account? Register!</a></p>
-    </div>
-    {% else %}
-    <div class="col-auto">
-        <div class="row justify-content-end">
-            <div class="col-auto">
-                <p></p>
-                <p>Welcome, <a href="/profile?id={{ session['USER'] }}" class="plain">{{ session['USERNAME'] }}! </a></p>
-            </div>
-            <div class="col-auto">
-                <div class="navbar">
-                    <button class="navbar-toggler" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-dark">
-                    <li><a class="dropdown-item active" href="/redirect_profile">Profile</a></li>
-                    <li><a class="dropdown-item" href="/edit">Edit Profile</a></li>
-                    <li><a class="dropdown-item" href="/logout">Logout</a></li>
-                    </ul>
-                </div>
-            </div>
-    </div>
-{% endif %}
-
 {% endblock %}
 
 
@@ -47,11 +14,15 @@
         <div class="row justify-content-center">
             <div class="col-auto">
                 <form action="/edit" method="post">
-                    <label class="form-label" for="name"><h1>{{ user.first }} {{ user.last }}</h1><input name="name" class="form-control" placeholder="Update name"></label>
-                    <label class="form-label" for="name"></label><p>Username: {{ user.username }}<input name="username" class="form-control" placeholder="Update username"></p>
-                    <label class="form-label" for="name"></label><p>Email: {{ user.email }}<input name="username" class="form-control" placeholder="Update email address"></p>
-                    <label class="form-label" for="name"></label><p>Phone: {{ user.phone }} <input name="username" class="form-control" placeholder="Update phone number"></p>
-                    <button class="btn btn-secondary btn-sm" type="button">Change password</button>
+                    <h1>{{ user.first }} {{ user.last }}</h1>
+                    <label class="form-label" for="first">First:</label><input name="first" class="form-control mb-1" placeholder="Update first name">
+                    <label class="form-label" for="last">Last:</label><input name="last" class="form-control" placeholder="Update last name">
+                    <label class="form-label" for="username"></label><p>Username: {{ user.username }}<input name="username" class="form-control" type="text" placeholder="Update username"></p>
+                    <label class="form-label" for="email"></label><p>Email: {{ user.email }}<input name="email" class="form-control" type="email" placeholder="Update email address"></p>
+                    <label class="form-label" for="phone"></label><p>Phone: {{ user.phone }} <input name="phone" class="form-control" type="tel" placeholder="Update phone number"></p>
+                    <label class="form-label" for="new-password"></label><p>New password: <input name="new-password" class="form-control" type="password"></p>
+                    <label class="form-label" for="confrim-new-password"></label><p>Confirm new password: <input name="confirm-new-password" class="form-control" type="password"></p>
+                    <label class="form-label" for="password"></label><p>*Enter current password to update profile: <input name="password" class="form-control" type="password" required></p>
                     <div class="text-center p-3">
                         <button class="btn btn-secondary" type="submit">Update Profile</button>
                         <a href="/redirect_profile"><button class="btn btn-secondary" type="button">Cancel Changes</button></a>
