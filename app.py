@@ -9,15 +9,12 @@ import constants as c
 # Create and configure application
 app = Flask(__name__)
 app.secret_key = "Sb39MDCIyj1kWgEKVzpmkQ"
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:Wj7gWQuu849VNDMYSY3j@containers-us-west-191.railway.app:7456/railway"
-#app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite3:///app.db"
+# app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:Wj7gWQuu849VNDMYSY3j@containers-us-west-191.railway.app:7456/railway"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.app_context().push()
 db = SQLAlchemy(app)
 
-if __name__ == '__main__':
-    db.create_all()
-    app.run()
 
 
 
@@ -322,7 +319,7 @@ def get_user():
 
 # Get the current top 25 players
 def get_players():
-    players = User.query.filter(User.rank < 26).all()
+    players = User.query.filter(User.rank <= c.PER_PAGE).all()
     return players
 
 # Get the profile info
