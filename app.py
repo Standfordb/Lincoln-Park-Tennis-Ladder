@@ -45,7 +45,8 @@ def index():
 # Registration form for new users
 @app.route("/register")
 def register():
-    return render_template("register.html")
+    page = "register"
+    return render_template("register.html", page=page)
 
 # Profile page
 @app.route("/profile")
