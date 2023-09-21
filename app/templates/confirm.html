@@ -17,7 +17,7 @@
                 {%else %}            
                     {% for match in temp_matches|sort(attribute='date_played') %}
                         {% if match.submit_by == session["USER"] %}
-                            <form>
+                            <form method="post">
                                 <fieldset>
                                     <legend><h2>Match waiting on confirmation:</h2></legend>
                                     <p>Score: {{ match.score }}
@@ -34,6 +34,8 @@
                                             {{ match.winner.first }} {{ match.winner.last }}
                                         {% endif %}</p>
                                         <p>Date played: {{ match.date_played }}</p>
+                                        <input name="match_id" type="hidden" value="{{ match.id }}">
+                                        <button class="btn btn-secondary" formaction="/dispute">Delete Match</button>
                                 </fieldset>
                             </form>
                             <hr class="border-4 opacity-100">

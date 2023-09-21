@@ -3,4 +3,4 @@
 #
 
 SPREAD = 3
-PER_PAGE = 25
+PER_PAGE = 5

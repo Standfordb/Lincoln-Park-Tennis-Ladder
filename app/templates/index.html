@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+
+
+{% block header %}
+
+
+{% endblock %}
+
+
+{% block main %}
+
+    <div class="container">
+        <div class="p-5"></div>
+        <div class="row">
+        <div class="col text-center"><h1>LP Ladder Ranks:</h1></div>
+        </div>
+        <hr class="border-4 opacity-100">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-4">
+                    <button class="btn btn-secondary" style="width: 100%" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                        Chat Room
+                    </button>
+                </p>
+                <div class="collapse" id="collapseExample">
+                    <div class="card card-body text-bg-secondary mb-3" style="color:black; min-height: 300px">
+                        <p><strong>LP Tennis Ladder:</strong> Chat feature coming soon!</p>
+                    </div>
+                    <form class="text-end">
+                        <input class="form-control text-bg-secondary mb-2" type="text" name="message" placeholder="Message">
+                        <button class="btn btn-secondary btn-sm" type="button">Send</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-12 col-md-8 p-3">
+                <table class="table table-dark table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 55%">Name:</th>
+                            <th style="width: 15%">Rank:</th>
+                            <th style="width: 15%">Win:</th>
+                            {% if 'USER' in session %}
+                                <th style="width: 15%">Challenge</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in players|sort(attribute='rank') %}
+                            <tr>
+                                <td><a href="/profile?id={{ player.id }}" style="text-decoration: none">{{ player.first }} {{ player.last }}</a></td>
+                                <td>#{{ player.rank }}</td>
+                                <td>{% if player.matches %}
+                                        {{ ((player.matches_won|count/player.matches|count)*100)|round|int }}%
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                {% if 'USER' in session %}
+                                    <td>
+                                        {% if player.rank - user.rank in range(-spread, 0) %}
+                                            <button class="btn btn-secondary">Challenge!</button>
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% for page in pages %}
+                            <li class="page-item"><a class="page-link text-bg-secondary" href="/?page={{ page }}">{{ page }}</a></li>
+                        {% endfor %}
+                    </ul>
+                  </nav>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
