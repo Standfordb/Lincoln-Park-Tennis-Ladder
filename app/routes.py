@@ -23,7 +23,8 @@ def index():
             user = h.get_user()
         else:
             user = None
-        return render_template("index.html", players=players, pages=pages, user=user, spread=c.SPREAD)
+        messages = h.get_broadcast_messages()
+        return render_template("index.html", players=players, pages=pages, user=user, spread=c.SPREAD, messages=messages)
     elif request.method == "POST":
         # Get the login information from the POST request
         username = request.form.get("username").strip().upper()

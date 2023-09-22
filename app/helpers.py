@@ -186,6 +186,7 @@ def get_profile(id):
     
     return profile, stats
 
+
 # Get opponents within proper rank range
 def get_opponents(rank):
     ranks = []
@@ -340,10 +341,28 @@ def update_profile(first, last, username, email, phone, new_password):
     db.session.commit()
     return
 
+# Save messages to the database
+def save_message(message):
+    msg = Chat(sender_id=session["USER"], message=message, broadcast=True)
+    db.session.add(msg)
+    db.session.commit()
+    return msg
 
+# Get messages for chat box
+def get_broadcast_messages():
+    messages = Chat.query.filter_by(broadcast=True).all()
+    return messages
 
-
-
+# Disallow blank messages
+def blank_message(message):
+    check = ""
+    for _ in range(500):
+        print("message:", '"', message, '"', "check:", '"', check, '"')
+        if message == check:
+            return True
+        else:
+            check += " "
+    return False
 
 
 
@@ -378,13 +397,15 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     phone = db.Column(db.String(255))
     rank = db.Column(db.Integer(), default=0)
+    date_joined = db.Column(db.Date, default=datetime.utcnow)
     matches = db.relationship("Match", secondary=user_match, backref="players")
     temp_matches = db.relationship("Temp_match", secondary=user_temp, backref="players")
     matches_won = db.relationship("Match", backref="winner", foreign_keys="Match.winner_id", lazy=True)
     matches_lost = db.relationship("Match", backref="loser", foreign_keys="Match.loser_id", lazy=True)
     temp_matches_won = db.relationship("Temp_match", backref="winner", foreign_keys="Temp_match.winner_id", lazy=True)
     temp_matches_lost = db.relationship("Temp_match", backref="loser", foreign_keys="Temp_match.loser_id", lazy=True)
-    date_joined = db.Column(db.Date, default=datetime.utcnow)
+    msg_sent = db.relationship("Chat", backref="sender", foreign_keys="Chat.sender_id", lazy=True)
+    msg_received = db.relationship("Chat", backref="recipient", foreign_keys="Chat.recipient_id", lazy=True)
 
     # Create a representation for the User class that is the users username
     def __repr__(self):
@@ -407,3 +428,12 @@ class Temp_match(db.Model):
     submit_by = db.Column(db.Integer, nullable=False)
     is_confirmed = db.Column(db.Boolean, default=False, nullable=False)
     date_played = db.Column(db.Date, default=datetime.utcnow)
+
+# Create a table to hold chat messages
+class Chat(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    recipient_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    message = db.Column(db.String(500))
+    date_posted = db.Column(db.Date, default=datetime.utcnow)
+    broadcast = db.Column(db.Boolean, default=False)

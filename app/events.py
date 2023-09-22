@@ -1,3 +1,5 @@
+from flask import session, redirect, flash
+from flask_socketio import emit
 from app.extensions import socketio
 import app.helpers as h
 
@@ -5,7 +7,20 @@ import app.helpers as h
 def handle_connect():
     print("Client connected")
 
-@socketio.on("user_connect")
-def handle_user_connect():
-    user = h.get_user()
-    print(f"User {user.username} has joined!")
+
+@socketio.on("chat_message")
+def handle_chat_message(message):
+    if not "USER" in session:
+        emit("chat_message", {"sender": "Error",
+                              "message": "Must be logged in to chat."})
+        return
+    elif h.blank_message(message):
+        emit("chat_message", {"sender": "Error",
+                              "message": "Chat message cannot be blank."})
+    else:
+        msg = h.save_message(message)
+        emit("chat_message", {"sender": msg.sender.first + " " + msg.sender.last,
+                            "message": msg.message,
+                            "date": str(msg.date_posted)},
+                            broadcast=True)
+    
