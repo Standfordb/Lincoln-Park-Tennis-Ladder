@@ -73,7 +73,7 @@ def create():
         h.create_session(username)
         return redirect("/")
     else:
-        return redirect("/register")
+        return render_template("register.html", first=first, last=last, username=username, password=password, confirm=confirm, email=email, phone=phone)
 
  # Route to collect match data from a user and store it in a temporary databease to await confirmation   
 @app.route("/input", methods=["GET", "POST"])

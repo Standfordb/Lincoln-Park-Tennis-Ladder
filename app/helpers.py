@@ -435,5 +435,5 @@ class Chat(db.Model):
     sender_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     recipient_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     message = db.Column(db.String(500))
-    date_posted = db.Column(db.Date, default=datetime.utcnow)
+    timestamp = db.Column(db.Date, default=datetime.utcnow)
     broadcast = db.Column(db.Boolean, default=False)

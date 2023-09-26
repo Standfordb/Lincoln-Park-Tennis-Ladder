@@ -18,14 +18,14 @@
         <div class="row justify-content-center">
             <div class="col-12 col-md-4">
                     <button class="btn btn-secondary" id="chat-btn" style="width: 100%" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                        Chat Room
+                        Message Board
                     </button>
                 </p>
                 <div class="collapse" id="collapseExample">
                     <div class="card card-body text-bg-secondary mb-3" id="chat-box" style="color:black; min-height: 300px; max-height: 400px; overflow-y: scroll;">
-                        {% for msg in messages %}
-                        <p><strong>{{ msg.sender.first }} {{ msg.sender.last }}:</strong> {{ msg.message }}</p>
-                        {% endfor %}
+                            {% for msg in messages %}
+                                <p><strong>{{ msg.sender.first }} {{ msg.sender.last }}:</strong> {{ msg.message }}</p>
+                            {% endfor %}
                     </div>
                     <form class="text-end" id="send-form" onsubmit="return false">
                         <input class="form-control text-bg-secondary text-start mb-2" type="text" name="message" id="message" placeholder="Message" autocomplete="off">
