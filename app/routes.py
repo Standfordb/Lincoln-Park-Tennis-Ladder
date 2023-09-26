@@ -71,7 +71,7 @@ def create():
     if h.validate_registration(first, last, username, password, email, confirm):
         h.create_user(first, last, username, password, email, phone)
         h.create_session(username)
-        return redirect("/")
+        return redirect("/info")
     else:
         return render_template("register.html", first=first, last=last, username=username, password=password, confirm=confirm, email=email, phone=phone)
 
@@ -151,3 +151,7 @@ def edit():
             if username:
                 h.create_session(username)
             return redirect("/redirect_profile")
+
+@app.route("/info")
+def info():
+    return render_template("info.html")
