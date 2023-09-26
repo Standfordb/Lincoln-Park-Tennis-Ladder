@@ -397,7 +397,7 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     phone = db.Column(db.String(255))
     rank = db.Column(db.Integer(), default=0)
-    date_joined = db.Column(db.Date, default=datetime.utcnow)
+    date_joined = db.Column(db.DateTime, default=datetime.utcnow)
     matches = db.relationship("Match", secondary=user_match, backref="players")
     temp_matches = db.relationship("Temp_match", secondary=user_temp, backref="players")
     matches_won = db.relationship("Match", backref="winner", foreign_keys="Match.winner_id", lazy=True)
@@ -417,7 +417,7 @@ class Match(db.Model):
     score = db.Column(db.String(50))
     winner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     loser_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    date_played = db.Column(db.Date, default=datetime.utcnow)
+    date_played = db.Column(db.DateTime, default=datetime.utcnow)
 
 # Create a temporary match table to hold matches while they wait for confirmation
 class Temp_match(db.Model):
@@ -427,7 +427,7 @@ class Temp_match(db.Model):
     loser_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     submit_by = db.Column(db.Integer, nullable=False)
     is_confirmed = db.Column(db.Boolean, default=False, nullable=False)
-    date_played = db.Column(db.Date, default=datetime.utcnow)
+    date_played = db.Column(db.DateTime, default=datetime.utcnow)
 
 # Create a table to hold chat messages
 class Chat(db.Model):
@@ -435,5 +435,5 @@ class Chat(db.Model):
     sender_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     recipient_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     message = db.Column(db.String(500))
-    timestamp = db.Column(db.Date, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     broadcast = db.Column(db.Boolean, default=False)

@@ -25,8 +25,15 @@ hr {
 .navbar-toggler {
     border: 2px solid;
 }
+
+.muted {
+    font-size: x-small;
+    color: #555555
+}
+
 /* ID selectors*/
 
 #header-row {
     min-height: 80px;
 }
+
