@@ -1,6 +1,7 @@
 from flask import flash, session
 from app import db
 from datetime import datetime
+import pytz
 import bcrypt
 import re
 import app.constants as c
@@ -351,18 +352,26 @@ def save_message(message):
 # Get messages for chat box
 def get_broadcast_messages():
     messages = Chat.query.filter_by(broadcast=True).all()
+    for message in messages:
+        message.time = format_timestamp(message.timestamp)
     return messages
 
 # Disallow blank messages
 def blank_message(message):
     check = ""
     for _ in range(500):
-        print("message:", '"', message, '"', "check:", '"', check, '"')
         if message == check:
             return True
         else:
             check += " "
     return False
+
+# Convert timestamps to local time and format them
+def format_timestamp(timestamp):
+    timestamp = pytz.utc.localize(timestamp)
+    timestamp = timestamp.astimezone()
+    time = timestamp.strftime(c.format)
+    return time
 
 
 

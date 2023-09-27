@@ -12,13 +12,13 @@ document.getElementById("send-form").addEventListener("submit", function () {
 })
 
 socket.on("chat_message", function(data) {
-    createMessage(data.sender, data.message);
+    createMessage(data.sender, data.message, data.time);
 })
 
-const createMessage = (sender, msg) => {
+const createMessage = (sender, msg, time) => {
     const content = `
     <p>
-        <strong>${sender}</strong>: ${msg}
+        <strong>${sender}</strong>: ${msg}  <span class="muted">${time}</span>
     </p
     `
     chatBox.innerHTML += content;

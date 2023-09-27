@@ -24,7 +24,7 @@
                 <div class="collapse" id="collapseExample">
                     <div class="card card-body text-bg-secondary mb-3" id="chat-box" style="color:black; min-height: 300px; max-height: 400px; overflow-y: scroll;">
                             {% for msg in messages %}
-                                <p><strong>{{ msg.sender.first }} {{ msg.sender.last }}:</strong> {{ msg.message }} <span class="muted">({{ msg.timestamp }})</span></p>
+                                <p><strong>{{ msg.sender.first }} {{ msg.sender.last }}:</strong> {{ msg.message }} <span class="muted">({{ msg.time }})</span></p>
                             {% endfor %}
                     </div>
                     <form class="text-end" id="send-form" onsubmit="return false">

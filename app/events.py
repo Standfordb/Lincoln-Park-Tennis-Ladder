@@ -21,6 +21,6 @@ def handle_chat_message(message):
         msg = h.save_message(message)
         emit("chat_message", {"sender": msg.sender.first + " " + msg.sender.last,
                             "message": msg.message,
-                            "date": str(msg.timestamp)},
+                            "time": h.format_timestamp(msg.timestamp)},
                             broadcast=True)
     
