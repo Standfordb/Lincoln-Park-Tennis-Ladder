@@ -15,7 +15,7 @@ import math
 #
 # Check if username is already taken
 def username_taken(username):
-    taken = User.query.filter_by(username=username).first()
+    taken = User.query.filter(User.username.ilike(username)).first()
     if taken:
         return True
     else:
@@ -23,7 +23,7 @@ def username_taken(username):
     
 # Check if email is already taken
 def email_taken(email):
-    taken = User.query.filter_by(email=email).first()
+    taken = User.query.filter(User.email.ilike(email)).first()
     if taken:
         return True
     else:
@@ -52,7 +52,7 @@ def update_ranks():
 
 # Validate username and password
 def validate_credentials(username, password):
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter(User.username.ilike(username)).first()
     if not user:
         flash("Username or password incorrect. Please try again.")
         return False
@@ -71,7 +71,7 @@ def password_not_match(password, confirm):
 
 # create a session for the current user 
 def create_session(username):
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter(User.username.ilike(username)).first()
     session["USER"] = user.id
     session["USERNAME"] = user.username
     return
@@ -164,9 +164,9 @@ def get_user():
 
 # Get the current top 25 players
 def get_players(page):
-    results = c.PER_PAGE * page
-    players = User.query.filter(User.rank.between(results-(c.PER_PAGE-1), results)).all()
-    p = math.ceil(User.query.count() / c.PER_PAGE)
+    results = c.RESULTS_PER_PAGE * page
+    players = User.query.filter(User.rank.between(results-(c.RESULTS_PER_PAGE-1), results)).all()
+    p = math.ceil(User.query.count() / c.RESULTS_PER_PAGE)
     x = 1
     pages = []
     while x <= p:
@@ -193,11 +193,11 @@ def get_opponents(rank):
     ranks = []
     opponents = []
     j = 0
-    for i in range(-c.SPREAD, c.SPREAD + 1):
+    for i in range(-c.CHALLENGE_SPREAD, c.CHALLENGE_SPREAD + 1):
         ranks.append(rank + i)
         opponents.append(User.query.filter_by(rank=ranks[j]).first())
         j += 1
-    opponents.pop(c.SPREAD)
+    opponents.pop(c.CHALLENGE_SPREAD)
     return opponents
 
 # Update ranks from all match data
@@ -370,7 +370,7 @@ def blank_message(message):
 def format_timestamp(timestamp):
     timestamp = pytz.utc.localize(timestamp)
     timestamp = timestamp.astimezone(pytz.timezone("Us/Eastern"))
-    time = timestamp.strftime(c.format)
+    time = timestamp.strftime(c.TIMESTAMP_FORMAT)
     return time
 
 

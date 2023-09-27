@@ -24,10 +24,10 @@ def index():
         else:
             user = None
         messages = h.get_broadcast_messages()
-        return render_template("index.html", players=players, pages=pages, user=user, spread=c.SPREAD, messages=messages)
+        return render_template("index.html", players=players, pages=pages, user=user, spread=c.CHALLENGE_SPREAD, messages=messages)
     elif request.method == "POST":
         # Get the login information from the POST request
-        username = request.form.get("username").strip().upper()
+        username = request.form.get("username").strip()
         password = request.form.get("password").strip()
         # Check username and password against database and if valid log user in
         if not h.validate_credentials(username, password):
@@ -62,10 +62,10 @@ def create():
     # Collect data submitted in POST request
     first = request.form.get("first").strip().capitalize()
     last = request.form.get("last").strip().capitalize()
-    username = request.form.get("username").strip().upper()
+    username = request.form.get("username").strip()
     password = request.form.get("password").strip()
     confirm = request.form.get("confirm").strip()
-    email = request.form.get("email").strip().upper()
+    email = request.form.get("email").strip()
     phone = request.form.get("phone").strip()
     
     if h.validate_registration(first, last, username, password, email, confirm):
