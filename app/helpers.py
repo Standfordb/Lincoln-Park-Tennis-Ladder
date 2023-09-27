@@ -369,7 +369,7 @@ def blank_message(message):
 # Convert timestamps to local time and format them
 def format_timestamp(timestamp):
     timestamp = pytz.utc.localize(timestamp)
-    timestamp = timestamp.astimezone()
+    timestamp = timestamp.astimezone(pytz.timezone("Us/Eastern"))
     time = timestamp.strftime(c.format)
     return time
 
