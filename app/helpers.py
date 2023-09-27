@@ -343,7 +343,7 @@ def update_profile(first, last, username, email, phone, new_password):
     return
 
 # Save messages to the database
-def save_message(message):
+def save_broadcast_message(message):
     msg = Chat(sender_id=session["USER"], message=message, broadcast=True)
     db.session.add(msg)
     db.session.commit()

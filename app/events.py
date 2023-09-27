@@ -18,7 +18,7 @@ def handle_chat_message(message):
         emit("chat_message", {"sender": "Error",
                               "message": "Chat message cannot be blank."})
     else:
-        msg = h.save_message(message)
+        msg = h.save_broadcast_message(message)
         emit("chat_message", {"sender": msg.sender.first + " " + msg.sender.last,
                             "message": msg.message,
                             "time": h.format_timestamp(msg.timestamp)},
