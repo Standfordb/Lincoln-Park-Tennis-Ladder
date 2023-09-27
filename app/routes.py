@@ -39,8 +39,7 @@ def index():
 # Registration form for new users
 @app.route("/register")
 def register():
-    page = "register"
-    return render_template("register.html", page=page)
+    return render_template("register.html", page="register")
 
 # Profile page
 @app.route("/profile")
@@ -73,7 +72,7 @@ def create():
         h.create_session(username)
         return redirect("/info")
     else:
-        return render_template("register.html", first=first, last=last, username=username, password=password, confirm=confirm, email=email, phone=phone)
+        return render_template("register.html", first=first, last=last, username=username, password=password, confirm=confirm, email=email, phone=phone, page="register")
 
  # Route to collect match data from a user and store it in a temporary databease to await confirmation   
 @app.route("/input", methods=["GET", "POST"])
