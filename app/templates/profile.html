@@ -20,14 +20,16 @@
                 <p>Total Matches: {{ stats[0] }}</p>
                 <p>Win %: {{ stats[1] }}</p>
                 {% if 'USER' in session %}
-                    <div class="row">
-                        <div class="col-auto">
-                            <div><a href="/input"><button class="btn btn-secondary" type="button">Input Match Results</button></a></div>
+                    {% if session["USER"] == profile.id %}     
+                        <div class="row">
+                            <div class="col-auto">
+                                <div><a href="/input"><button class="btn btn-secondary" type="button">Input Match Results</button></a></div>
+                            </div>
+                            <div class="col-auto">
+                                <div><a href="/confirm"><button class="btn btn-secondary" type="button">Confirm Match Results</button></a></div>
+                            </div>
                         </div>
-                        <div class="col-auto">
-                            <div><a href="/confirm"><button class="btn btn-secondary" type="button">Confirm Match Results</button></a></div>
-                        </div>
-                    </div>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
