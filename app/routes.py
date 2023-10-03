@@ -20,7 +20,10 @@ def index():
             page = 1
         players, pages = h.get_players(int(page))
         if "USER" in session:
-            user = h.get_user()
+            try:
+                user = h.get_user()
+            except KeyError:
+                user = None
         else:
             user = None
         messages = h.get_broadcast_messages()
@@ -44,11 +47,17 @@ def register():
 # Profile page
 @app.route("/profile")
 def profile():
-    # Get the id of the profile to pull up
-    id = request.args.get('id')
-    profile, stats = h.get_profile(id)
-    messages = h.get_private_messages(profile.id, session["USER"])
-    return render_template("profile.html", profile=profile, stats=stats, messages=messages)
+        # Get the id of the profile to pull up
+        id = request.args.get('id')
+        profile, stats = h.get_profile(id)
+        if "USER" in session:
+            try:
+                messages = h.get_private_messages(profile.id, session["USER"])
+                return render_template("profile.html", profile=profile, stats=stats, messages=messages)
+            except KeyError:
+                return render_template("profile.html", profile=profile, stats=stats)
+        else:
+            return render_template("profile.html", profile=profile, stats=stats)
 
 # Logout button 
 @app.route("/logout")
@@ -60,8 +69,8 @@ def logout():
 @app.route("/create", methods=["POST"])
 def create():
     # Collect data submitted in POST request
-    first = request.form.get("first").strip().capitalize()
-    last = request.form.get("last").strip().capitalize()
+    first = request.form.get("first").strip()
+    last = request.form.get("last").strip()
     username = request.form.get("username").strip()
     password = request.form.get("password").strip()
     confirm = request.form.get("confirm").strip()
@@ -79,11 +88,14 @@ def create():
 @app.route("/input", methods=["GET", "POST"])
 def input():
     if request.method == "GET":
-        # Find the opponents within 3 ranks of user
-        user = h.get_user()
-        opponents = h.get_opponents(user.rank)
-        # Send username and opponents to input page
-        return render_template("input.html", opponents=opponents)
+        try:
+            # Find the opponents within 3 ranks of user
+            user = h.get_user()
+            opponents = h.get_opponents(user.rank)
+            # Send username and opponents to input page
+            return render_template("input.html", opponents=opponents)
+        except KeyError:
+            return redirect("/")
     elif request.method == "POST":
         # Get the data from the form
         score = request.form.get("score").strip()
@@ -108,10 +120,13 @@ def input():
 @app.route("/confirm", methods=["GET", "POST"])
 def confirm():
     if request.method == "GET":
-        temp_matches = h.get_temp_matches(session["USER"])
-        for match in temp_matches:
-            h.remove_timestamp(match)
-        return render_template("confirm.html", temp_matches=temp_matches )
+        try:
+            temp_matches = h.get_temp_matches(session["USER"])
+            for match in temp_matches:
+                h.remove_timestamp(match)
+            return render_template("confirm.html", temp_matches=temp_matches)
+        except KeyError:
+            return redirect("/")
     elif request.method == "POST":
         match_id = request.form.get("match_id")
         h.confirm_match(match_id)
@@ -128,20 +143,26 @@ def dispute():
 @app.route("/redirect_profile")
 def redirect_profile():    
     if "USER" in session:
-        profile, stats = h.get_profile(session["USER"])
-        return render_template("profile.html", profile=profile, stats=stats, id=profile.id)
+        try:
+            profile, stats = h.get_profile(session["USER"])
+            return render_template("profile.html", profile=profile, stats=stats, id=profile.id)
+        except KeyError:
+            return redirect("/")
     else:
-        redirect("/")
+        return redirect("/")
 
 # Route to edit profile information
 @app.route("/edit", methods=["GET", "POST"])
 def edit():
     if request.method == "GET":
-        user = h.get_user()
-        return render_template("edit.html", user=user)
+        try:
+            user = h.get_user()
+            return render_template("edit.html", user=user)
+        except KeyError:
+            return redirect("/")
     elif request.method == "POST":
-        first = request.form.get("first").strip().capitalize()
-        last = request.form.get("last").strip().capitalize()
+        first = request.form.get("first").strip()
+        last = request.form.get("last").strip()
         username = request.form.get("username").strip()
         email = request.form.get("email").strip()
         phone = request.form.get("phone").strip()

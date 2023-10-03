@@ -14,25 +14,29 @@
         <div class="row justify-content-center">
             {% if "USER" in session %}
                 {% if profile.id != session["USER"] %}
-                    <div class="col-auto">
-                        <h1>{{ profile.first }} {{ profile.last }}</h1>
+                    <div class="col-12 col-lg-6">
+                        <h1 class="text-center">{{ profile.first }} {{ profile.last }}</h1>
                         <hr class="border-4 opacity-100">
-                        <p>Email: {{ profile.email }}</p>
-                        <p>Phone: {{ profile.phone }}</p>
-                        <p>Rank: {{ profile.rank }}</p>
-                        <p>Total Matches: {{ stats[0] }}</p>
-                        <p>Win %: {{ stats[1] }}</p>
+                        <div style="padding-left: 5%">
+                            <p>Email: {{ profile.email }}</p>
+                            <p>Phone: {{ profile.phone }}</p>
+                            <p>Rank: {{ profile.rank }}</p>
+                            <p>Total Matches: {{ stats[0] }}</p>
+                            <p>Win %: {{ stats[1] }}</p>
+                        </div> 
                     </div>
                 {% else %}
-                    <div class="col-auto">
-                        <h1>{{ profile.first }} {{ profile.last }}</h1>
+                    <div class="col-12 col-lg-6">
+                        <h1 class="text-center">{{ profile.first }} {{ profile.last }}</h1>
                         <hr class="border-4 opacity-100">
-                        <p>Email: {{ profile.email }}</p>
-                        <p>Phone: {{ profile.phone }}</p>
-                        <p>Rank: {{ profile.rank }}</p>
-                        <p>Total Matches: {{ stats[0] }}</p>
-                        <p>Win %: {{ stats[1] }}</p>    
-                        <div class="row">
+                        <div style="padding-left: 5%">
+                            <p>Email: {{ profile.email }}</p>
+                            <p>Phone: {{ profile.phone }}</p>
+                            <p>Rank: {{ profile.rank }}</p>
+                            <p>Total Matches: {{ stats[0] }}</p>
+                            <p>Win %: {{ stats[1] }}</p>
+                        </div>    
+                        <div class="row justify-content-center">
                             <div class="col-auto">
                                 <div><a href="/input"><button class="btn btn-secondary" type="button">Input Match Results</button></a></div>
                             </div>
@@ -43,14 +47,16 @@
                     </div>
                 {% endif %}
             {% else %}
-                <div class="col-auto">
-                    <h1>{{ profile.first }} {{ profile.last }}</h1>
+                <div class="col-12 col-lg-6">
+                    <h1 class="text-center">{{ profile.first }} {{ profile.last }}</h1>
                     <hr class="border-4 opacity-100">
-                    <p>Email: {{ profile.email }}</p>
-                    <p>Phone: {{ profile.phone }}</p>
-                    <p>Rank: {{ profile.rank }}</p>
-                    <p>Total Matches: {{ stats[0] }}</p>
-                    <p>Win %: {{ stats[1] }}</p>
+                    <div style="padding-left: 5%">
+                        <p>Email: {{ profile.email }}</p>
+                        <p>Phone: {{ profile.phone }}</p>
+                        <p>Rank: {{ profile.rank }}</p>
+                        <p>Total Matches: {{ stats[0] }}</p>
+                        <p>Win %: {{ stats[1] }}</p>
+                    </div> 
             {% endif %}
         </div>
         <div class="row justify-content-center">
