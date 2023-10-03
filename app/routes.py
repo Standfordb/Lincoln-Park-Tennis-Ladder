@@ -127,8 +127,11 @@ def dispute():
 
 @app.route("/redirect_profile")
 def redirect_profile():    
-    profile, stats = h.get_profile(session["USER"])
-    return render_template("profile.html", profile=profile, stats=stats, id=profile.id)
+    if "USER" in session:
+        profile, stats = h.get_profile(session["USER"])
+        return render_template("profile.html", profile=profile, stats=stats, id=profile.id)
+    else:
+        redirect("/")
 
 # Route to edit profile information
 @app.route("/edit", methods=["GET", "POST"])
