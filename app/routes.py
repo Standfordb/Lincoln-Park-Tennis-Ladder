@@ -47,7 +47,8 @@ def profile():
     # Get the id of the profile to pull up
     id = request.args.get('id')
     profile, stats = h.get_profile(id)
-    return render_template("profile.html", profile=profile, stats=stats)
+    messages = h.get_private_messages(profile.id, session["USER"])
+    return render_template("profile.html", profile=profile, stats=stats, messages=messages)
 
 # Logout button 
 @app.route("/logout")
@@ -108,6 +109,8 @@ def input():
 def confirm():
     if request.method == "GET":
         temp_matches = h.get_temp_matches(session["USER"])
+        for match in temp_matches:
+            h.remove_timestamp(match)
         return render_template("confirm.html", temp_matches=temp_matches )
     elif request.method == "POST":
         match_id = request.form.get("match_id")
@@ -136,8 +139,8 @@ def edit():
     elif request.method == "POST":
         first = request.form.get("first").strip().capitalize()
         last = request.form.get("last").strip().capitalize()
-        username = request.form.get("username").strip().upper()
-        email = request.form.get("email").strip().upper()
+        username = request.form.get("username").strip()
+        email = request.form.get("email").strip()
         phone = request.form.get("phone").strip()
         new_password = request.form.get("new-password")
         confirm_new_password = request.form.get("confirm-new-password")

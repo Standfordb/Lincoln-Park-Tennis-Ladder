@@ -179,6 +179,8 @@ def get_profile(id):
     profile = User.query.filter_by(id=id).first()
     stats = []
     if profile.matches:
+        for match in profile.matches:
+            remove_timestamp(match)
         stats.append(len(profile.matches))
         stats.append(int(len(profile.matches_won) / len(profile.matches) * 100))
     else:
@@ -299,27 +301,33 @@ def validate_update(username, email, phone, new_password, confirm_new_password, 
     user = get_user()
     if username:
         if username_taken(username):
-            flash("Username already taken. Please select a new username.")
-            return False
-    elif email:
-        if email_taken(email):
-            flash("Email already in use. Please use a different email.")
-            return False
-        elif not email_regex(email):
+            if username.upper() == user.username.upper():
+                pass
+            else:
+                flash("Username already taken. Please select a new username.")
+                return False
+    if email:
+        if not email_regex(email):
             flash("Please enter a valid email address.")
             return False
-    elif phone:
+        if email_taken(email):
+            if email.upper() == user.email.upper():
+                pass
+            else:
+                flash("Email already in use. Please use a different email.")
+                return False
+    if phone:
         if not phone_regex(phone):
             flash("Phone number not in valid format: (###)###-####")
             return False
-    elif new_password:
+    if new_password:
         if not password_regex(new_password):
             flash("Invalid character in new password. Valid characters: A-Z, 0-9, !, @, #, $, %, *, _, =, +, ^, &")
             return False
         elif password_not_match(new_password, confirm_new_password):
             flash("Passwords do not match. Please re-enter.")
             return False
-    elif bcrypt.hashpw(password.encode('utf8'), user.salt) != user.password:
+    if bcrypt.hashpw(password.encode('utf8'), user.salt) != user.password:
         flash("Invalid password. Changes not saved.")
         return False
     return True
@@ -349,9 +357,24 @@ def save_broadcast_message(message):
     db.session.commit()
     return msg
 
+# Save private messages to the database
+def save_private_message(message, recipient):
+    msg = Chat(sender_id=session["USER"], message=message, recipient_id=recipient, broadcast=False)
+    db.session.add(msg)
+    db.session.commit()
+    return msg
+
 # Get messages for chat box
 def get_broadcast_messages():
     messages = Chat.query.filter_by(broadcast=True).all()
+    for message in messages:
+        message.time = format_timestamp(message.timestamp)
+    return messages
+
+# Get private messages for chat box
+def get_private_messages(recipient, sender):
+    messages = Chat.query.filter_by(sender_id=sender, recipient_id=recipient).all()
+    messages += Chat.query.filter_by(sender_id=recipient, recipient_id=sender).all()
     for message in messages:
         message.time = format_timestamp(message.timestamp)
     return messages
@@ -370,8 +393,15 @@ def blank_message(message):
 def format_timestamp(timestamp):
     timestamp = pytz.utc.localize(timestamp)
     timestamp = timestamp.astimezone(pytz.timezone("Us/Eastern"))
-    time = timestamp.strftime(c.TIMESTAMP_FORMAT)
+    time = timestamp.strftime(c.TIMESTAMP_FULL)
     return time
+
+def remove_timestamp(match):
+    match.date = match.date_played.strftime(c.TIMESTAMP_DATE_ONLY)
+    return match
+
+
+
 
 
 

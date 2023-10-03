@@ -1,8 +1,8 @@
 {% extends "layout.html" %}
 
+{% block head %}
 
-{% block header %}
-
+<script type ="text/javascript" src={{ url_for("static", filename="profile.js") }} defer></script>
 
 {% endblock %}
 
@@ -12,15 +12,26 @@
     <div class="container">
         <div class="p-3"></div>
         <div class="row justify-content-center">
-            <div class="col-auto">
-                <h1>{{ profile.first }} {{ profile.last }}</h1>
-                <p>Email: {{ profile.email }}</p>
-                <p>Phone: {{ profile.phone }}</p>
-                <p>Rank: {{ profile.rank }}</p>
-                <p>Total Matches: {{ stats[0] }}</p>
-                <p>Win %: {{ stats[1] }}</p>
-                {% if 'USER' in session %}
-                    {% if session["USER"] == profile.id %}     
+            {% if "USER" in session %}
+                {% if profile.id != session["USER"] %}
+                    <div class="col-auto">
+                        <h1>{{ profile.first }} {{ profile.last }}</h1>
+                        <hr class="border-4 opacity-100">
+                        <p>Email: {{ profile.email }}</p>
+                        <p>Phone: {{ profile.phone }}</p>
+                        <p>Rank: {{ profile.rank }}</p>
+                        <p>Total Matches: {{ stats[0] }}</p>
+                        <p>Win %: {{ stats[1] }}</p>
+                    </div>
+                {% else %}
+                    <div class="col-auto">
+                        <h1>{{ profile.first }} {{ profile.last }}</h1>
+                        <hr class="border-4 opacity-100">
+                        <p>Email: {{ profile.email }}</p>
+                        <p>Phone: {{ profile.phone }}</p>
+                        <p>Rank: {{ profile.rank }}</p>
+                        <p>Total Matches: {{ stats[0] }}</p>
+                        <p>Win %: {{ stats[1] }}</p>    
                         <div class="row">
                             <div class="col-auto">
                                 <div><a href="/input"><button class="btn btn-secondary" type="button">Input Match Results</button></a></div>
@@ -29,13 +40,43 @@
                                 <div><a href="/confirm"><button class="btn btn-secondary" type="button">Confirm Match Results</button></a></div>
                             </div>
                         </div>
-                    {% endif %}
+                    </div>
                 {% endif %}
-            </div>
+            {% else %}
+                <div class="col-auto">
+                    <h1>{{ profile.first }} {{ profile.last }}</h1>
+                    <hr class="border-4 opacity-100">
+                    <p>Email: {{ profile.email }}</p>
+                    <p>Phone: {{ profile.phone }}</p>
+                    <p>Rank: {{ profile.rank }}</p>
+                    <p>Total Matches: {{ stats[0] }}</p>
+                    <p>Win %: {{ stats[1] }}</p>
+            {% endif %}
         </div>
-        <hr class="border-4 opacity-100">
         <div class="row justify-content-center">
-            <div class="col-12 col-md-9 text-center">
+            <div class="p-3"></div>
+            <hr class="border-4 opacity-100">
+            {% if "USER" in session and session["USER"] != profile.id %}
+                <div class="col-12 col-md-4">
+                    <button class="btn btn-secondary mb-3" id="chat-btn" style="width: 100%" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                        Message {{ profile.first}}
+                    </button>
+                    <div class="collapse" id="collapseExample">
+                        <div class="card card-body text-bg-secondary mb-3" id="chat-box" style="color:black; min-height: 300px; max-height: 400px; overflow-y: scroll;">
+                                {% for msg in messages|sort(attribute='timestamp') %}
+                                    <p><strong>{{ msg.sender.first }}:</strong> {{ msg.message }} <span class="muted">({{ msg.time }})</span></p>
+                                {% endfor %}
+                        </div>
+                        <form class="text-end" id="private-msg-form" onsubmit="return false">
+                            <input class="form-control text-bg-secondary text-start mb-2" type="text" name="message" id="message" placeholder="Message" autocomplete="off">
+                            <input type="hidden" id="recipient" value="{{ profile.id }}">
+                            <input type="hidden" id="user" value="{{ session['USER'] }}">
+                            <button class="btn btn-secondary btn-sm" type="submit">Send</button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="col-12 col-md-8 text-center">
                 <h1>Matches:</h1>
                 <table class="table table-dark table-striped table-hover">
                     <thead>
@@ -57,7 +98,7 @@
                                     {% endif %}
                                 </td>
                                 <td>{{ match.score }}</td>
-                                <td>{{ match.date_played }}</td>
+                                <td>{{ match.date }}</td>
                                 {% if match.winner_id == profile.id %}
                                 <td><a href="/profile?id={{ match.loser_id }}">
                                     {% if match.loser.first %}
