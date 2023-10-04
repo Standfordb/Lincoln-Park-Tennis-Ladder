@@ -265,16 +265,31 @@ def password_regex(password):
         return False
 
 def phone_regex(phone):
-    regex = re.compile("^\(\d{3}\)\d{3}-\d{4}$")
+    regex = re.compile("^\d{3}-\d{3}-\d{4}$")
     p = regex.match(phone)
     if p:
         return True
     else:
         return False
     
+def format_phone(phone):
+    new_phone = ""
+    for digit in phone:
+        if digit.isdigit():
+            new_phone += digit
+    new_phone = new_phone[:3] + "-" + new_phone[3:]
+    new_phone = new_phone[:7] + "-" + new_phone[7:]
+    return new_phone
+
+
+    
 # Validate registration form data
-def validate_registration(first, last, username, password, email, confirm):
+def validate_registration(first, last, username, password, email, confirm, phone):
     # Confirm form was submitted with all required data
+    if phone:
+        if not phone_regex(phone):
+            flash("Invalid phone number. Please re-enter")
+            return False
     if not first or not last or not username or not password or not email:
         flash("Missing required data. Please make sure form is complete.")
         return False
@@ -318,7 +333,7 @@ def validate_update(username, email, phone, new_password, confirm_new_password, 
                 return False
     if phone:
         if not phone_regex(phone):
-            flash("Phone number not in valid format: (###)###-####")
+            flash("Invalid phone number. Please re-enter")
             return False
     if new_password:
         if not password_regex(new_password):

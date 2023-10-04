@@ -23,6 +23,7 @@ def index():
             try:
                 user = h.get_user()
             except KeyError:
+                print("Exception caught! KeyError")
                 user = None
         else:
             user = None
@@ -55,6 +56,7 @@ def profile():
                 messages = h.get_private_messages(profile.id, session["USER"])
                 return render_template("profile.html", profile=profile, stats=stats, messages=messages)
             except KeyError:
+                print("Exception caught! KeyError")
                 return render_template("profile.html", profile=profile, stats=stats)
         else:
             return render_template("profile.html", profile=profile, stats=stats)
@@ -75,9 +77,10 @@ def create():
     password = request.form.get("password").strip()
     confirm = request.form.get("confirm").strip()
     email = request.form.get("email").strip()
-    phone = request.form.get("phone").strip()
+    phone = h.format_phone(request.form.get("phone").strip())
+
     
-    if h.validate_registration(first, last, username, password, email, confirm):
+    if h.validate_registration(first, last, username, password, email, confirm, phone):
         h.create_user(first, last, username, password, email, phone)
         h.create_session(username)
         return redirect("/info")
@@ -95,6 +98,7 @@ def input():
             # Send username and opponents to input page
             return render_template("input.html", opponents=opponents)
         except KeyError:
+            print("Exception caught! KeyError")
             return redirect("/")
     elif request.method == "POST":
         # Get the data from the form
@@ -126,6 +130,7 @@ def confirm():
                 h.remove_timestamp(match)
             return render_template("confirm.html", temp_matches=temp_matches)
         except KeyError:
+            print("Exception caught! KeyError")
             return redirect("/")
     elif request.method == "POST":
         match_id = request.form.get("match_id")
@@ -147,6 +152,7 @@ def redirect_profile():
             profile, stats = h.get_profile(session["USER"])
             return render_template("profile.html", profile=profile, stats=stats, id=profile.id)
         except KeyError:
+            print("Exception caught! KeyError")
             return redirect("/")
     else:
         return redirect("/")
@@ -159,13 +165,14 @@ def edit():
             user = h.get_user()
             return render_template("edit.html", user=user)
         except KeyError:
+            print("Exception caught! KeyError")
             return redirect("/")
     elif request.method == "POST":
         first = request.form.get("first").strip()
         last = request.form.get("last").strip()
         username = request.form.get("username").strip()
         email = request.form.get("email").strip()
-        phone = request.form.get("phone").strip()
+        phone = h.format_phone(request.form.get("phone").strip())
         new_password = request.form.get("new-password")
         confirm_new_password = request.form.get("confirm-new-password")
         password = request.form.get("password")
