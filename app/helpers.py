@@ -472,6 +472,8 @@ class User(db.Model):
     temp_matches = db.relationship("Temp_match", secondary=user_temp, backref="players")
     matches_won = db.relationship("Match", backref="winner", foreign_keys="Match.winner_id", lazy=True)
     matches_lost = db.relationship("Match", backref="loser", foreign_keys="Match.loser_id", lazy=True)
+    temp_matches_won = db.relationship("Temp_match", backref="winner", foreign_keys="Temp_match.winner_id", lazy=True)
+    temp_matches_lost = db.relationship("Temp_match", backref="loser", foreign_keys="Temp_match.loser_id", lazy=True)
     msg_sent = db.relationship("Chat", backref="sender", foreign_keys="Chat.sender_id", lazy=True)
     msg_received = db.relationship("Chat", backref="recipient", foreign_keys="Chat.recipient_id", lazy=True)
 
