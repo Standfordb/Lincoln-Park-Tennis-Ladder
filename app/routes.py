@@ -177,7 +177,7 @@ def edit():
         last = request.form.get("last").strip()
         username = request.form.get("username").strip()
         email = request.form.get("email").strip()
-        phone = h.format_phone(request.form.get("phone").strip())
+        phone = request.form.get("phone").strip()
         new_password = request.form.get("new-password")
         confirm_new_password = request.form.get("confirm-new-password")
         password = request.form.get("password")

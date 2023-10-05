@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 380407bc4b90
+Revision ID: 3228a3f5703f
 Revises: 
-Create Date: 2023-10-04 12:02:41.858270
+Create Date: 2023-10-05 10:08:44.805043
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '380407bc4b90'
+revision = '3228a3f5703f'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -50,6 +50,7 @@ def upgrade():
     sa.Column('winner_id', sa.Integer(), nullable=True),
     sa.Column('loser_id', sa.Integer(), nullable=True),
     sa.Column('date_played', sa.DateTime(), nullable=True),
+    sa.Column('match_type', sa.String(length=50), nullable=True),
     sa.ForeignKeyConstraint(['loser_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['winner_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -59,9 +60,9 @@ def upgrade():
     sa.Column('score', sa.String(length=50), nullable=True),
     sa.Column('winner_id', sa.Integer(), nullable=True),
     sa.Column('loser_id', sa.Integer(), nullable=True),
-    sa.Column('submit_by', sa.Integer(), nullable=False),
-    sa.Column('is_confirmed', sa.Boolean(), nullable=False),
     sa.Column('date_played', sa.DateTime(), nullable=True),
+    sa.Column('match_type', sa.String(length=50), nullable=True),
+    sa.Column('submit_by', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['loser_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['winner_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')

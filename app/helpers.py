@@ -348,6 +348,7 @@ def validate_update(username, email, phone, new_password, confirm_new_password, 
                 flash("Email already in use. Please use a different email.")
                 return False
     if phone:
+        phone = format_phone(phone)
         if not phone_regex(phone):
             flash("Invalid phone number. Please re-enter")
             return False
