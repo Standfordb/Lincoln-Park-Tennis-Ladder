@@ -87,12 +87,14 @@
             {% endblock %}
         </header>
         <main>
-            {% block main %}
+            <div class="container" style="height: 90vh">
+                {% block main %}
 
-            {% endblock %}
-            <div class="p-5"></div>
+                {% endblock %}
+                <div class="p-5"></div>
+            </div>
         </main>
-        <footer class="fixed-bottom">
+        <footer class="text-end">
             <address>Benjamin Standford 2023©</address>
         </footer>
     </body>

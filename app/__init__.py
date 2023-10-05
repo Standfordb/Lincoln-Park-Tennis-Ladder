@@ -1,6 +1,5 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from app.extensions import socketio
+from app.extensions import socketio, Migrate, SQLAlchemy, Flask
+
 
 
 
@@ -13,6 +12,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.app_context().push()
 db = SQLAlchemy(app)
 socketio.init_app(app)
+migrate = Migrate(app, db)
 
 
 from app import routes

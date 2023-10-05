@@ -1,63 +1,77 @@
 {% extends "layout.html" %}
 
 
-{% block header %}
+{% block head %}
 
+<script type ="text/javascript" src={{ url_for("static", filename="input.js") }} defer></script>
 
 {% endblock %}
 
 
 {% block main %}
-    <div class="container">
-        <div class="p-3"></div>
-            <h2 class="text-center">Record your match:</h2>
-            <hr class="border-4 opacity-100">
-                <div class="row justify-content-center">
-                    <div class="col-10 col-md-6 p-3">
-            <form action="/input" method="post">
-                    <fieldset>
-                        <div class="mb-3">
-                            <label for="score" class="form-label"><strong>Score: </strong></label>
-                            <input class="form-control" name="score" type="text" autocomplete="off" placeholder="Format: #-#(#-#) #-#(#-#)" autofocus required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="opponent" class="form-label"><strong>Opponent: </strong></label>
-                            <select class="form-control" name="opponent" required>
-                                {% for opponent in opponents %}
-                                    {% if opponent.id %}
-                                        <option value="{{ opponent.id }}">{{ opponent.first }} {{ opponent.last }} - Rank {{ opponent.rank }}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="p-1"></div>
-                        <div class="form-check text-start mb-3">
-                            <input class="form-check-input" name="is_win" type="radio" value="0" required>
-                            <label for="is_win" class="form--check-label">Win against</label>
-                        </div>
-                        <div class="form-check text-start mb-3">
-                            <input class="form-check-input" name="is_win" type="radio" value="1" required>
-                            <label for="is_win" class="form-check-label">Loss against</label>
-                        </div>
-                        <div class="p-1"></div>
-                        <div class="mb-3">
-                            <label for="date_played">Date played: <input name="date_played" type="date" required></label>
-                        </div>
-                        <div class="row justify-content-center p-3">
-                            <div class="col-auto">
-                                <div class="text-center">
-                                    <button class="btn btn-secondary" type="submit">Submit</button>
-                                </div>
+
+    <div class="p-3"></div>
+        <h2 class="text-center">Record your match:</h2>
+        <hr class="border-4 opacity-100">
+            <div class="row justify-content-center">
+                <div class="col-10 col-md-6 p-3">
+        <form action="/input" method="post">
+                <fieldset>
+                    <div class="mb-1">
+                        <label for="score" class="form-label"><strong>Score: </strong></label>
+                        <input class="form-control" name="score" type="text" autocomplete="off" placeholder="Format: #-#(#-#) #-#(#-#)" autofocus required>
+                    </div>
+                    <div class="mb-3">
+                        <input class="form-check-input" name="type" id="friendly" type="checkbox" value="Friendly" autocomplete="off">
+                        <label for="friendly" class="form-check-label">Friendly</label>
+                    </div>
+                    <div class="mb-3" id="challenge-opponents">
+                        <label for="opponent" class="form-label"><strong>Opponent: </strong></label>
+                        <select class="form-control" name="opponent" id="chall-opps" required>
+                            <option value="None" selected disabled>Select an opponent</option>
+                            {% for opponent in opponents %}
+                                {% if opponent.id %}
+                                    <option value="{{ opponent.id }}">{{ opponent.first }} {{ opponent.last }} - Rank {{ opponent.rank }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3" id="friendly-opponents" style="display: none">
+                        <label for="opponent" class="form-label"><strong>Opponent: </strong></label>
+                        <select class="form-control" name="opponent" id="friendly-opps" required>
+                            <option value="None" selected disabled>Select an opponent</option>
+                            {% for friendly in friendlies|sort(attribute='rank') %}
+                                <option value="{{ friendly.id }}">{{ friendly.first }} {{ friendly.last }} - Rank {{ friendly.rank }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="p-1"></div>
+                    <div class="form-check text-start mb-3">
+                        <input class="form-check-input" name="is_win" type="radio" value="0" required>
+                        <label for="is_win" class="form--check-label">Win against</label>
+                    </div>
+                    <div class="form-check text-start mb-3">
+                        <input class="form-check-input" name="is_win" type="radio" value="1" required>
+                        <label for="is_win" class="form-check-label">Loss against</label>
+                    </div>
+                    <div class="p-1"></div>
+                    <div class="mb-3">
+                        <label for="date_played">Date played: <input name="date_played" type="date" required></label>
+                    </div>
+                    <div class="row justify-content-center p-3">
+                        <div class="col-auto">
+                            <div class="text-center">
+                                <button class="btn btn-secondary" type="submit">Submit</button>
                             </div>
-                            <div class="col-auto">
-                                <div class="text-center">
-                                    <a href="/redirect_profile"><button class="btn btn-secondary" type="button">Cancel</button></a>
-                                </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="text-center">
+                                <a href="/redirect_profile"><button class="btn btn-secondary" type="button">Cancel</button></a>
                             </div>
                         </div>
-                    </fieldset>
-                </form>
-            </div>
+                    </div>
+                </fieldset>
+            </form>
         </div>
     </div>
 

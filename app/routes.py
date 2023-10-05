@@ -95,8 +95,9 @@ def input():
             # Find the opponents within 3 ranks of user
             user = h.get_user()
             opponents = h.get_opponents(user.rank)
+            friendlies = h.get_friendly_opponents()
             # Send username and opponents to input page
-            return render_template("input.html", opponents=opponents)
+            return render_template("input.html", opponents=opponents, friendlies=friendlies)
         except KeyError:
             print("Exception caught! KeyError")
             return redirect("/")
@@ -106,17 +107,20 @@ def input():
         opponent_id = request.form.get("opponent")
         is_win = request.form.get("is_win")
         date_played = request.form.get("date_played")
+        match_type = request.form.get("type")
+        if not match_type:
+            match_type = "Challenge"
         # Make sure no data is missing
         if not score or not opponent_id or not is_win or not date_played:
             flash("Please fill out all fields.")
             return redirect("/input")
         # Make sure data has not been tampered with client-side
-        elif not h.validate_match_data(score, opponent_id, is_win, date_played):
+        elif not h.validate_match_data(score, opponent_id, is_win, date_played, match_type):
             flash("Problem recording match. Please try again")
             return redirect("/input")
         else:
             # If all looks good, record the match to Temp_match database to await confirmation
-            h.record_match(score, opponent_id, is_win, date_played)
+            h.record_match(score, opponent_id, is_win, date_played, match_type, session["USER"])
             profile, stats = h.get_profile(session["USER"])
             return redirect(url_for("profile", profile=profile, stats=stats, id=profile.id))
 
@@ -134,8 +138,9 @@ def confirm():
             return redirect("/")
     elif request.method == "POST":
         match_id = request.form.get("match_id")
-        h.confirm_match(match_id)
-        h.update_rankings()
+        match_type = h.confirm_match(match_id)
+        if match_type == "Challenge":
+            h.update_rankings()
         return redirect("/confirm")
 
 # Route to delete temp match if player disputes

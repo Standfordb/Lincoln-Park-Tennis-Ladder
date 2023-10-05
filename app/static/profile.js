@@ -1,5 +1,11 @@
 const socket = io();
 const chatBox = document.getElementById("chat-box");
+const allMatches = document.getElementById("all-matches");
+const challengeMatches = document.getElementById("challenge-matches");
+const checkbox = document.getElementById("filter");
+const chatCol = document.getElementById("chat-col");
+const recipient = document.getElementById("recipient").value;
+const user = document.getElementById("user").value; 
 
 document.getElementById("chat-btn").addEventListener("click", function () {
     chatBox.scrollTop = chatBox.scrollHeight;
@@ -25,9 +31,21 @@ document.getElementById("private-msg-form").addEventListener("submit", function 
 })
 
 socket.on("private_message", function(data) {
-    let recipient = document.getElementById("recipient").value;
-    let user = document.getElementById("user").value;
     if (data.sender == recipient || data.sender == user) {
         createMessage(data.name, data.message, data.time);
     }
 })
+
+checkbox.addEventListener("change", function() {
+    if (checkbox.checked) {
+        allMatches.style.display = "none";
+        challengeMatches.style.display = "";
+    } else {
+        allMatches.style.display = "";
+        challengeMatches.style.display = "none"
+    }
+})
+
+if (user == recipient || Boolean(user) == false) {
+    chatCol.style.display = "none";
+}

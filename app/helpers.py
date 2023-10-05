@@ -83,7 +83,7 @@ def remove_session():
     return
     
 # Record match results to match table and assign to correct users
-def record_match(score, opponent_id, is_win, date):
+def record_match(score, opponent_id, is_win, date, type, submit_by):
     # Check who won the match
     if is_win == "0":
         winner_id = session["USER"]
@@ -96,7 +96,7 @@ def record_match(score, opponent_id, is_win, date):
     date_played = datetime.strptime(date, "%Y-%m-%d")
 
     # Record the results
-    match = Temp_match(score=score, winner_id=winner_id, loser_id=loser_id, submit_by=session["USER"], date_played=date_played)
+    match = Temp_match(score=score, winner_id=winner_id, loser_id=loser_id, date_played=date_played, match_type=type, submit_by=session["USER"])
 
     # Get user and opponent and connect them to the new match
     user = get_user()
@@ -111,7 +111,7 @@ def record_match(score, opponent_id, is_win, date):
 # Confirm match results and commit to Match table
 def confirm_match(id):
     temp_match = Temp_match.query.filter_by(id=id).first()
-    match = Match(score=temp_match.score, winner_id=temp_match.winner_id, loser_id=temp_match.loser_id, date_played=temp_match.date_played)
+    match = Match(score=temp_match.score, winner_id=temp_match.winner_id, loser_id=temp_match.loser_id, date_played=temp_match.date_played, match_type=temp_match.match_type)
     user = get_user()
     if match.winner_id == session["USER"]:
         opponent_id = match.loser_id
@@ -123,10 +123,10 @@ def confirm_match(id):
     db.session.add(match)
     db.session.delete(temp_match)
     db.session.commit()
-    return
+    return match.match_type
 
 # Validate match data
-def validate_match_data(score, opponent_id, is_win, date_played):
+def validate_match_data(score, opponent_id, is_win, date_played, match_type):
     # Get the user who is submitting the match
     user = get_user()
     # Find the possible opponents for this user
@@ -141,21 +141,19 @@ def validate_match_data(score, opponent_id, is_win, date_played):
     if p == None:
         return False
     # Set the date to a date type
-    try:
-        match_date = datetime.strptime(date_played, "%Y-%m-%d")
-    except:
-        return False
+    match_date = datetime.strptime(date_played, "%Y-%m-%d")
     if match_date > datetime.today():
         flash("Match date can not be in the future.")
         return False
     # Check if opponent matches possible opponents by rank
-    elif not opponent in opponents:
-        return False
+    if match_type == "challenge":
+        if not opponent in opponents:
+            return False
     # Check if win_against is a 0 or 1
-    elif is_win not in win_check:
+    if is_win not in win_check:
         return False
-    else:
-        return True
+    
+    return True
 
 # Get the current users username  
 def get_user():
@@ -177,17 +175,35 @@ def get_players(page):
 # Get the profile info
 def get_profile(id):
     profile = User.query.filter_by(id=id).first()
+    challenges = Match.query.filter_by(match_type="Challenge").all()
+    challenges_won = 0
+    challenges_lost = 0
     stats = []
     if profile.matches:
         for match in profile.matches:
             remove_timestamp(match)
         stats.append(len(profile.matches))
-        stats.append(int(len(profile.matches_won) / len(profile.matches) * 100))
+        win_rate = int(len(profile.matches_won) / len(profile.matches) * 100)
+        win_rate = str(win_rate) + "%"
+        stats.append(win_rate)
+        for challenge in challenges:
+            if challenge.winner.id == profile.id:
+                challenges_won += 1
+            elif challenge.loser.id == profile.id:
+                challenges_lost += 1
+        challenge_rate = int(challenges_won/(challenges_won + challenges_lost) * 100)
+        challenge_rate = str(challenge_rate) + "%"
+        stats.append(challenge_rate)
     else:
         stats.append("No matches played yet")
         stats.append("N/A")
+        stats.append("N/A")
     
     return profile, stats
+
+def get_friendly_opponents():
+    friendlies = User.query.filter(User.id!=session["USER"]).all()
+    return friendlies
 
 
 # Get opponents within proper rank range
@@ -204,7 +220,7 @@ def get_opponents(rank):
 
 # Update ranks from all match data
 def update_rankings():
-    matches = Match.query.order_by(Match.date_played.asc()).all()
+    matches = Match.query.filter(Match.match_type=="Challenge").order_by(Match.date_played.asc()).all()
     for match in matches:
         update_ranks(match.winner_id, match.loser_id)
     return
@@ -456,8 +472,6 @@ class User(db.Model):
     temp_matches = db.relationship("Temp_match", secondary=user_temp, backref="players")
     matches_won = db.relationship("Match", backref="winner", foreign_keys="Match.winner_id", lazy=True)
     matches_lost = db.relationship("Match", backref="loser", foreign_keys="Match.loser_id", lazy=True)
-    temp_matches_won = db.relationship("Temp_match", backref="winner", foreign_keys="Temp_match.winner_id", lazy=True)
-    temp_matches_lost = db.relationship("Temp_match", backref="loser", foreign_keys="Temp_match.loser_id", lazy=True)
     msg_sent = db.relationship("Chat", backref="sender", foreign_keys="Chat.sender_id", lazy=True)
     msg_received = db.relationship("Chat", backref="recipient", foreign_keys="Chat.recipient_id", lazy=True)
 
@@ -472,6 +486,7 @@ class Match(db.Model):
     winner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     loser_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     date_played = db.Column(db.DateTime, default=datetime.utcnow)
+    match_type = db.Column(db.String(50))
 
 # Create a temporary match table to hold matches while they wait for confirmation
 class Temp_match(db.Model):
@@ -479,9 +494,9 @@ class Temp_match(db.Model):
     score = db.Column(db.String(50))
     winner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     loser_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    submit_by = db.Column(db.Integer, nullable=False)
-    is_confirmed = db.Column(db.Boolean, default=False, nullable=False)
     date_played = db.Column(db.DateTime, default=datetime.utcnow)
+    match_type = db.Column(db.String(50))
+    submit_by = db.Column(db.Integer)
 
 # Create a table to hold chat messages
 class Chat(db.Model):

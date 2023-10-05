@@ -29,10 +29,8 @@ def handle_chat_message(message):
     if not "USER" in session:
         emit("chat_message", {"sender": "Error",
                               "message": "Must be logged in to chat."})
-        return
     elif h.blank_message(message):
-        emit("chat_message", {"sender": "Error",
-                              "message": "Chat message cannot be blank."})
+        pass
     else:
         msg = h.save_broadcast_message(message)
         emit("chat_message", {"sender": msg.sender.first + " " + msg.sender.last,
@@ -44,8 +42,7 @@ def handle_chat_message(message):
 @socketio.on("private_message")
 def handle_private_message(message, recipient):
     if h.blank_message(message):
-        emit("private_message", {"sender": "Error",
-                              "message": "Chat message cannot be blank."})
+        pass
     else:
         msg = h.save_private_message(message, recipient)
         emit("private_message", {"sender": msg.sender.id,

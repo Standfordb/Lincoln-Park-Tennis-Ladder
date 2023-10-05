@@ -9,26 +9,25 @@
 
 {% block main %}
 
-    <div class="container">
-        <div class="p-3"></div>
-        <div class="row justify-content-center">
-            <div class="col-auto">
-                <form action="/edit" method="post">
-                    <h1>{{ user.first }} {{ user.last }}</h1>
-                    <label class="form-label" for="first">First:</label><input name="first" class="form-control mb-1" placeholder="Update first name">
-                    <label class="form-label" for="last">Last:</label><input name="last" class="form-control" placeholder="Update last name">
-                    <label class="form-label" for="username"></label><p>Username: {{ user.username }}<input name="username" class="form-control" type="text" placeholder="Update username"></p>
-                    <label class="form-label" for="email"></label><p>Email: {{ user.email }}<input name="email" class="form-control" type="email" placeholder="Update email address"></p>
-                    <label class="form-label" for="phone"></label><p>Phone: {{ user.phone }} <input name="phone" class="form-control" type="text" placeholder="Update phone number"></p>
-                    <label class="form-label" for="new-password"></label><p>New password: <input name="new-password" class="form-control" type="password"></p>
-                    <label class="form-label" for="confrim-new-password"></label><p>Confirm new password: <input name="confirm-new-password" class="form-control" type="password"></p>
-                    <label class="form-label" for="password"></label><p>*Enter current password to update profile: <input name="password" class="form-control" type="password" required></p>
-                    <div class="text-center p-3">
-                        <button class="btn btn-secondary" type="submit">Update Profile</button>
-                        <a href="/redirect_profile"><button class="btn btn-secondary" type="button">Cancel Changes</button></a>
-                    </div>
-                </form>
-            </div>
+    <div class="p-3"></div>
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <form action="/edit" method="post">
+                <h1>{{ user.first }} {{ user.last }}</h1>
+                <label class="form-label" for="first">First:</label><input name="first" class="form-control mb-1" placeholder="Update first name">
+                <label class="form-label" for="last">Last:</label><input name="last" class="form-control" placeholder="Update last name">
+                <label class="form-label" for="username"></label><p>Username: {{ user.username }}<input name="username" class="form-control" type="text" placeholder="Update username"></p>
+                <label class="form-label" for="email"></label><p>Email: {{ user.email }}<input name="email" class="form-control" type="email" placeholder="Update email address"></p>
+                <label class="form-label" for="phone"></label><p>Phone: {{ user.phone }} <input name="phone" class="form-control" type="text" placeholder="Update phone number"></p>
+                <label class="form-label" for="new-password"></label><p>New password: <input name="new-password" class="form-control" type="password"></p>
+                <label class="form-label" for="confrim-new-password"></label><p>Confirm new password: <input name="confirm-new-password" class="form-control" type="password"></p>
+                <label class="form-label" for="password"></label><p>*Enter current password to update profile: <input name="password" class="form-control" type="password" required></p>
+                <div class="text-center p-3">
+                    <button class="btn btn-secondary" type="submit">Update Profile</button>
+                    <a href="/redirect_profile"><button class="btn btn-secondary" type="button">Cancel Changes</button></a>
+                </div>
+            </form>
         </div>
+        
 
 {% endblock %}
