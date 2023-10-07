@@ -191,9 +191,13 @@ def get_profile(id):
                 challenges_won += 1
             elif challenge.loser.id == profile.id:
                 challenges_lost += 1
-        challenge_rate = int(challenges_won/(challenges_won + challenges_lost) * 100)
-        challenge_rate = str(challenge_rate) + "%"
-        stats.append(challenge_rate)
+        try:
+            challenge_rate = int(challenges_won/(challenges_won + challenges_lost) * 100)
+            challenge_rate = str(challenge_rate) + "%"
+            stats.append(challenge_rate)
+        except ZeroDivisionError:
+            challenge_rate = "N/A"
+            stats.append(challenge_rate)
     else:
         stats.append("No matches played yet")
         stats.append("N/A")
