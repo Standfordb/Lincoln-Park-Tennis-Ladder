@@ -79,7 +79,8 @@ def create_session(username):
 
 # Remove the current user from the session
 def remove_session():
-    session.pop('USER', None)
+    session.pop("USER", None)
+    session.pop("USERNAME", None)
     return
     
 # Record match results to match table and assign to correct users
@@ -113,7 +114,7 @@ def confirm_match(id):
     temp_match = Temp_match.query.filter_by(id=id).first()
     match = Match(score=temp_match.score, winner_id=temp_match.winner_id, loser_id=temp_match.loser_id, date_played=temp_match.date_played, match_type=temp_match.match_type)
     user = get_user()
-    if match.winner_id == session["USER"]:
+    if match.winner_id == user.id:
         opponent_id = match.loser_id
     else:
         opponent_id = match.winner_id
@@ -123,7 +124,7 @@ def confirm_match(id):
     db.session.add(match)
     db.session.delete(temp_match)
     db.session.commit()
-    return match.match_type
+    return
 
 # Validate match data
 def validate_match_data(score, opponent_id, is_win, date_played, match_type):
@@ -221,14 +222,6 @@ def get_opponents(rank):
         j += 1
     opponents.pop(c.CHALLENGE_SPREAD)
     return opponents
-
-# Update ranks from all match data
-def update_rankings():
-    matches = Match.query.filter(Match.match_type=="Challenge").order_by(Match.date_played.asc()).all()
-    for match in matches:
-        update_ranks(match.winner_id, match.loser_id)
-    return
-
 
 # Update ranks after a match
 def update_ranks(winner_id, loser_id):
@@ -463,7 +456,7 @@ user_temp = db.Table("user_temp",
 
 # Create database class for"User" table
 class User(db.Model): 
-    id = db.Column(db.Integer(), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     first= db.Column(db.String(255), nullable=False)
     last = db.Column(db.String(255), nullable=False)
     username = db.Column(db.String(255), unique=True, nullable=False)
@@ -472,6 +465,7 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     phone = db.Column(db.String(255))
     rank = db.Column(db.Integer(), default=0)
+    challenge = db.Column(db.Integer)
     date_joined = db.Column(db.DateTime, default=datetime.utcnow)
     matches = db.relationship("Match", secondary=user_match, backref="players")
     temp_matches = db.relationship("Temp_match", secondary=user_temp, backref="players")

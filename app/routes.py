@@ -24,6 +24,7 @@ def index():
                 user = h.get_user()
             except KeyError:
                 print("Exception caught! KeyError")
+                h.remove_session()
                 user = None
         else:
             user = None
@@ -138,9 +139,10 @@ def confirm():
             return redirect("/")
     elif request.method == "POST":
         match_id = request.form.get("match_id")
-        match_type = h.confirm_match(match_id)
-        if match_type == "Challenge":
-            h.update_rankings()
+        h.confirm_match(match_id)
+        match = h.Match.query.filter_by(id=match_id).first()
+        if match.match_type == "Challenge":
+            h.update_ranks(match.winner_id, match.loser_id)
         return redirect("/confirm")
 
 # Route to delete temp match if player disputes
