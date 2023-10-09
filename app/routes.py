@@ -77,7 +77,7 @@ def create():
     password = request.form.get("password").strip()
     confirm = request.form.get("confirm").strip()
     email = request.form.get("email").strip()
-    phone = h.format_phone(request.form.get("phone").strip())
+    phone = request.form.get("phone").strip()
 
     
     if h.validate_registration(first, last, username, password, email, confirm, phone):

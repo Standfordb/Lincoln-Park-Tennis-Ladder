@@ -307,7 +307,7 @@ def format_phone(phone):
 def validate_registration(first, last, username, password, email, confirm, phone):
     # Confirm form was submitted with all required data
     if phone:
-        if not phone_regex(phone):
+        if not phone_regex(format_phone(phone)):
             flash("Invalid phone number. Please re-enter")
             return False
     if not first or not last or not username or not password or not email:
