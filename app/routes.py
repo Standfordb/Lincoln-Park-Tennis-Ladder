@@ -80,7 +80,8 @@ def create():
     email = request.form.get("email").strip()
     phone = request.form.get("phone").strip()
 
-    
+    if phone:
+        h.format_phone(phone)
     if h.validate_registration(first, last, username, password, email, confirm, phone):
         h.create_user(first, last, username, password, email, phone)
         h.create_session(username)
@@ -195,3 +196,13 @@ def edit():
 @app.route("/info")
 def info():
     return render_template("info.html")
+
+@app.route("/challenge")
+def challenge():
+    id = request.args.get("id")
+    type = "CHALLENGE"
+    user = h.get_user()
+    h.create_notification(id, user.id, type)
+    user.challenge = id
+    h.db.session.commit()
+    return redirect("/")

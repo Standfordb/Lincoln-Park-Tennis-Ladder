@@ -300,7 +300,7 @@ def format_phone(phone):
 def validate_registration(first, last, username, password, email, confirm, phone):
     # Confirm form was submitted with all required data
     if phone:
-        if not phone_regex(format_phone(phone)):
+        if not phone_regex(phone):
             flash("Invalid phone number. Please re-enter")
             return False
     if not first or not last or not username or not password or not email:
@@ -429,7 +429,14 @@ def remove_timestamp(match):
     match.date = match.date_played.strftime(c.TIMESTAMP_DATE_ONLY)
     return match
 
-
+def create_notification(user, originator, type):
+    origin = User.query.filter_by(id=originator).first()
+    message = c.NOTIFICATIONS[type] + f"{origin.first} {origin.last}."
+    notification = Notification(user_id=user, originator_id=originator, type=type, message=message)
+    db.session.add(notification)
+    db.session.commit()
+    return
+    
 
 
 
@@ -468,6 +475,7 @@ class User(db.Model):
     challenge = db.Column(db.Integer)
     date_joined = db.Column(db.DateTime, default=datetime.utcnow)
     matches = db.relationship("Match", secondary=user_match, backref="players")
+    notifications = db.relationship("Notification", backref="user", foreign_keys=("Notification.user_id"))
     temp_matches = db.relationship("Temp_match", secondary=user_temp, backref="players")
     matches_won = db.relationship("Match", backref="winner", foreign_keys="Match.winner_id", lazy=True)
     matches_lost = db.relationship("Match", backref="loser", foreign_keys="Match.loser_id", lazy=True)
@@ -507,3 +515,11 @@ class Chat(db.Model):
     message = db.Column(db.String(500))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     broadcast = db.Column(db.Boolean, default=False)
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    originator_id = db.Column(db.Integer)
+    type = db.Column(db.String(50))
+    message = db.Column(db.String(255))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)

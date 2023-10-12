@@ -59,7 +59,7 @@
                             {% if 'USER' in session %}
                                 <td>
                                     {% if player.rank - user.rank in range(-spread, 0) %}
-                                        <button class="btn btn-secondary">Challenge!</button>
+                                        <a href="/challenge?id={{ player.id }}"><button class="btn btn-secondary">Challenge!</button></a>
                                     {% endif %}
                                 </td>
                             {% endif %}

@@ -30,14 +30,32 @@
                     <div class="col-12 col-lg-6">
                         <h1 class="text-center">{{ profile.first }} {{ profile.last }}</h1>
                         <hr class="border-4 opacity-100">
-                        <div style="padding-left: 5%">
-                            <p>Email: {{ profile.email }}</p>
-                            <p>Phone: {{ profile.phone }}</p>
-                            <p>Rank: {{ profile.rank }}</p>
-                            <p>Total Matches: {{ stats[0] }}</p>
-                            <p>Win: {{ stats[1] }}</p>
-                            <p>Challenge win: {{ stats[2] }}</p>
-                        </div>    
+                        <div class="row">
+                            <div class="col-6">
+                                <div style="padding-left: 5%">
+                                    <p>Email: {{ profile.email }}</p>
+                                    <p>Phone: {{ profile.phone }}</p>
+                                    <p>Rank: {{ profile.rank }}</p>
+                                    <p>Total Matches: {{ stats[0] }}</p>
+                                    <p>Win: {{ stats[1] }}</p>
+                                    <p>Challenge win: {{ stats[2] }}</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-secondary mb-3" id="chat-btn" style="width: 100%" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                                    Notifications
+                                </button>
+                                <div class="collapse" id="collapseExample">
+                                    <div class="card card-body text-bg-secondary" id="chat-box" style="color:black; max-height: 160px; overflow-y: auto">
+                                        {% for notification in profile.notifications %}
+                                            <div class="alert alert-secondary alert-dismissible fade show text-bg-secondary" style="font-size: .8em" role="alert">
+                                                <strong>{{ notification.type }}!</strong> {{ notification.message }}
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>    
                         <div class="row justify-content-center">
                             <div class="col-auto">
                                 <div><a href="/input"><button class="btn btn-secondary mb-1" type="button">Input Match Results</button></a></div>
