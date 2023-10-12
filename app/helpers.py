@@ -262,7 +262,7 @@ def get_temp_matches(id):
 
 # Check inputs against appropriate regular expressions
 def email_regex(email):
-    regex = re.compile("[^@.]*@[^@.]*\.[^@.]*")
+    regex = re.compile("[^@]*@[^@]*\.[^@.]*")
     p = regex.match(email)
     if p:
         return True
