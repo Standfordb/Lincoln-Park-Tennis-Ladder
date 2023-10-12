@@ -290,8 +290,9 @@ def format_phone(phone):
     for digit in phone:
         if digit.isdigit():
             new_phone += digit
-    new_phone = new_phone[:3] + "-" + new_phone[3:]
-    new_phone = new_phone[:7] + "-" + new_phone[7:]
+    if new_phone:
+        new_phone = new_phone[:3] + "-" + new_phone[3:]
+        new_phone = new_phone[:7] + "-" + new_phone[7:]
     return new_phone
 
 
