@@ -78,9 +78,8 @@ def create():
     password = request.form.get("password").strip()
     confirm = request.form.get("confirm").strip()
     email = request.form.get("email").strip()
-    phone = request.form.get("phone").strip()
+    phone = h.format_phone(request.form.get("phone").strip())
 
-    
     if h.validate_registration(first, last, username, password, email, confirm, phone):
         h.create_user(first, last, username, password, email, phone)
         h.create_session(username)
@@ -179,7 +178,7 @@ def edit():
         last = request.form.get("last").strip()
         username = request.form.get("username").strip()
         email = request.form.get("email").strip()
-        phone = request.form.get("phone").strip()
+        phone = h.format_phone(request.form.get("phone").strip())
         new_password = request.form.get("new-password")
         confirm_new_password = request.form.get("confirm-new-password")
         password = request.form.get("password")

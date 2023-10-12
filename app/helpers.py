@@ -290,8 +290,9 @@ def format_phone(phone):
     for digit in phone:
         if digit.isdigit():
             new_phone += digit
-    new_phone = new_phone[:3] + "-" + new_phone[3:]
-    new_phone = new_phone[:7] + "-" + new_phone[7:]
+    if new_phone:
+        new_phone = new_phone[:3] + "-" + new_phone[3:]
+        new_phone = new_phone[:7] + "-" + new_phone[7:]
     return new_phone
 
 
@@ -300,7 +301,7 @@ def format_phone(phone):
 def validate_registration(first, last, username, password, email, confirm, phone):
     # Confirm form was submitted with all required data
     if phone:
-        if not phone_regex(format_phone(phone)):
+        if not phone_regex(phone):
             flash("Invalid phone number. Please re-enter")
             return False
     if not first or not last or not username or not password or not email:
@@ -345,7 +346,6 @@ def validate_update(username, email, phone, new_password, confirm_new_password, 
                 flash("Email already in use. Please use a different email.")
                 return False
     if phone:
-        phone = format_phone(phone)
         if not phone_regex(phone):
             flash("Invalid phone number. Please re-enter")
             return False
