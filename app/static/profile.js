@@ -62,8 +62,8 @@ notificationBox.addEventListener("click", event => {
     }
 
     if (event.target.name === "close") {
-        let notification_id = event.target.id;
-        socket.emit("remove_notification", notification_id);
+        let id = event.target.id;
+        socket.emit("remove_notification", id);
     } else {
         let msg = event.target.id;
         let challenger_id = event.target.value;
@@ -91,9 +91,23 @@ socket.on("update_notifications", function(data) {
     } else {
         profileBadge.style.display = "none";
         buttonBadge.style.display = "none";
-        notification.style.display = "none";
+        if (notification) {
+            notification.style.display = "none";
+        }
         notificationBox.innerHTML += content;
     }
 
 
+})
+
+socket.on("error_open_challenge", function(data) {
+    let notif = document.getElementById(data.id)
+    let content =`
+        <span id="error-${data.id}">${data.msg}</span>
+    `
+    if (document.getElementById("error-" + data.id)) {
+        return
+    } else {
+        notif.innerHTML += content;
+    }
 })

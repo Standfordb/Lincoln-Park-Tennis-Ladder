@@ -104,6 +104,18 @@
                                         <button class="btn btn-dark btn-sm" name={{ notification.id }} id="decline" type="button" value={{ notification.originator_id }}>Decline</button>
                                         <p class="muted mb-0">{{ notification.timestamp }}</p>                             
                                     </div>
+                                {% elif notification.type == "MESSAGE" %}
+                                <div class="alert alert-secondary alert-dismissible fade show text-bg-secondary" style="font-size: .8em" role="alert">
+                                    <p>
+                                        <strong>{{ notification.type }}!</strong>
+                                         {{ notification.message }}
+                                    </p>
+                                    <a href="/profile?id={{ notification.originator_id }}">
+                                        <button class="btn btn-dark btn-sm" type="button" name="close" id={{ notification.id }}>Go to their profile</button>
+                                    </a>
+                                        <p class="muted mb-0">{{ notification.timestamp }}</p>  
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" name="close" id={{ notification.id }}></button>                           
+                                </div>
                                 {% else %}
                                 <div class="alert alert-secondary alert-dismissible fade show text-bg-secondary" style="font-size: .8em" role="alert">
                                     <p>

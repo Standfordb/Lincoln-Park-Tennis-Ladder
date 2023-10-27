@@ -28,12 +28,11 @@
                     <div class="mb-3" id="challenge-opponents">
                         <label for="opponent" class="form-label"><strong>Opponent: </strong></label>
                         <select class="form-control" name="opponent" id="chall-opps" required>
-                            <option value="None" selected disabled>Select an opponent</option>
-                            {% for opponent in opponents %}
-                                {% if opponent.id %}
-                                    <option value="{{ opponent.id }}">{{ opponent.first }} {{ opponent.last }} - Rank {{ opponent.rank }}</option>
-                                {% endif %}
-                            {% endfor %}
+                            {% if opponent %}
+                                <option value="{{ opponent.id }}">{{ opponent.first }} {{ opponent.last }} - Rank {{ opponent.rank }}</option>
+                            {% else %}
+                                <option value="None" selected disabled>No challenge open!</option>
+                            {% endif %}
                         </select>
                     </div>
                     <div class="mb-3" id="friendly-opponents" style="display: none">

@@ -1,6 +1,7 @@
-from flask import session, request
+from flask import session, request, flash
 from flask_socketio import emit
 from app.extensions import socketio
+from app import routes as r
 import app.helpers as h
 import app.constants as c
 
@@ -45,6 +46,9 @@ def handle_private_message(message, recipient):
         pass
     else:
         msg = h.save_private_message(message, recipient)
+        notification = h.Notification.query.filter_by(user_id=recipient, originator_id=msg.sender.id, type=c.MESSAGE).first()
+        if not notification:
+            h.create_notification(recipient, msg.sender.id, c.MESSAGE)
         emit("private_message", {"sender": msg.sender.id,
                                  "name": msg.sender.first,
                                 "message": msg.message,
@@ -59,11 +63,16 @@ def handle_private_message(message, recipient):
 
 @socketio.on("handle_challenge")
 def handle_challenge(msg, challenger_id, notification_id):
-    h.handle_challenge(msg, challenger_id, notification_id)
+    outcome = h.handle_challenge(msg, challenger_id, notification_id)
     user = h.get_user()
     count = len(user.notifications)
-    emit("update_notifications", {"id": notification_id,
-                                "count": count})
+    if outcome == False:
+        emit("error_open_challenge", {"id": notification_id,
+                                    "msg": "(You already have an open challenge.)"})
+    else:
+        emit("update_notifications", {"id": notification_id,
+                                    "count": count})
+    
 
 @socketio.on("remove_notification")
 def remove_notification(id):

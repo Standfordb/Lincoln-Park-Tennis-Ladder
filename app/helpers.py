@@ -1,5 +1,6 @@
-from flask import flash, session, redirect
+from flask import flash, session
 from app import db
+from app import routes as r
 from datetime import datetime
 import pytz
 import bcrypt
@@ -210,7 +211,7 @@ def confirm_match(id):
     db.session.add(match)
     db.session.delete(temp_match)
     db.session.commit()
-    return
+    return match
 
 # Validate match data
 def validate_match_data(score, opponent_id, is_win, date_played, match_type):
@@ -308,6 +309,11 @@ def get_opponents(rank):
         j += 1
     opponents.pop(c.CHALLENGE_SPREAD)
     return opponents
+
+def get_opponent():
+    user = get_user()
+    opponent = User.query.filter_by(id=user.challenge).first()
+    return opponent
 
 # Update ranks after a match
 def update_ranks(winner_id, loser_id):
@@ -532,30 +538,47 @@ def cancel_challenge(user_id, challenge_id):
     user.challenge = None
     if chall_user.challenge == user.id:
         chall_user.challenge = None
+        create_notification(chall_user.id, user.id, c.CHALL_CANCEL)
+    notification = Notification.query.filter_by(user_id=challenge_id, originator_id=user.id, type=c.CHALLENGE).first()
+    if notification:
+        remove_notification(notification.id)
     db.session.commit()
     return
 
 def handle_challenge(msg, challenger_id, notification_id):
     user = get_user()
+    challenger = User.query.filter_by(id=challenger_id).first()
     notification = Notification.query.filter_by(id=notification_id).first()
     if notification:
         if msg == "accept":
-            user.challenge = challenger_id
-            db.session.delete(notification)
-            db.session.commit()
-            return
+            if user.challenge != None:
+                return False
+            else:
+                user.challenge = challenger_id
+                challenger.challenge = user.id
+                create_notification(challenger.id, user.id, c.CHALL_ACCEPTED)
+                db.session.delete(notification)
+                db.session.commit()
+                return True
         else:
-            challenger = User.query.filter_by(id=challenger_id).first()
+            create_notification(challenger.id, user.id, c.CHALL_DECLINED)
             challenger.challenge = None
-            create_notification(challenger.id, user.id, "CHALLENGE DECLINED")
             db.session.delete(notification)
             db.session.commit()
-            return
+            return True
     else:
         return
 
 def remove_notification(id):
     notification = Notification.query.filter_by(id=id).first()
     db.session.delete(notification)
+    db.session.commit()
+    return
+
+def reset_challenge(user_id, chall_id):
+    user = User.query.filter_by(id=user_id).first()
+    chall = User.query.filter_by(id=chall_id).first()
+    user.challenge = None
+    chall.challenge = None
     db.session.commit()
     return

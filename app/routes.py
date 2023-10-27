@@ -95,10 +95,10 @@ def input():
         try:
             # Find the opponents within 3 ranks of user
             user = h.get_user()
-            opponents = h.get_opponents(user.rank)
+            opponent = h.get_opponent()
             friendlies = h.get_friendly_opponents()
             # Send username and opponents to input page
-            return render_template("input.html", opponents=opponents, friendlies=friendlies, user=user)
+            return render_template("input.html", opponent=opponent, friendlies=friendlies, user=user)
         except KeyError:
             print("Exception caught! KeyError")
             return redirect("/")
@@ -110,7 +110,7 @@ def input():
         date_played = request.form.get("date_played")
         match_type = request.form.get("type")
         if not match_type:
-            match_type = "Challenge"
+            match_type = c.CHALLENGE
         # Make sure no data is missing
         if not score or not opponent_id or not is_win or not date_played:
             flash("Please fill out all fields.")
@@ -122,8 +122,8 @@ def input():
         else:
             # If all looks good, record the match to Temp_match database to await confirmation
             h.record_match(score, opponent_id, is_win, date_played, match_type, session["USER"])
-            profile, stats = h.get_profile(session["USER"])
-            return redirect(url_for("profile", profile=profile, stats=stats, id=profile.id))
+            h.create_notification(opponent_id, session["USER"], c.MATCH_REPORTED)
+            return redirect("/redirect_profile")
 
 # Route to confirm and entry in the Temp_match database and commit it to the Matches database
 @app.route("/confirm", methods=["GET", "POST"])
@@ -140,10 +140,10 @@ def confirm():
             return redirect("/")
     elif request.method == "POST":
         match_id = request.form.get("match_id")
-        h.confirm_match(match_id)
-        match = h.Match.query.filter_by(id=match_id).first()
-        if match.match_type == "Challenge":
+        match = h.confirm_match(match_id)
+        if match.match_type == c.CHALLENGE:
             h.update_ranks(match.winner_id, match.loser_id)
+            h.reset_challenge(match.winner.id, match.loser.id)
         return redirect("/confirm")
 
 # Route to delete temp match if player disputes
@@ -203,23 +203,20 @@ def info():
 def challenge():
     id = request.args.get("id")
     recipient = h.User.query.filter_by(id=id).first()
-    type = "CHALLENGE"
-    user = h.get_user()  
-    if recipient.challenge == None:
-        h.create_notification(id, user.id, type)
+    user = h.get_user()
+    if recipient.challenge != None:
+        flash("Player currently has an open challenge. Please wait until it is completed to challenge this player.")
+        return redirect("/")
+    else:
+        h.create_notification(id, user.id, c.CHALLENGE)
         user.challenge = id
         h.db.session.commit()
         return redirect("/")
-    else:
-        flash("Player currently has an open challenge. Please wait until it is completed to challenge this player.")
-        return redirect("/")
+        
 
 @app.route("/cancel_challenge")
 def cancel_challenge():
     user = h.get_user()
     challenge_id = request.args.get("id")
     h.cancel_challenge(user.id, challenge_id)
-    notification = h.Notification.query.filter_by(user_id=challenge_id, originator_id=user.id, type="CHALLENGE").first()
-    print("notification id =", notification.id)
-    h.remove_notification(notification.id)
     return redirect("/")
