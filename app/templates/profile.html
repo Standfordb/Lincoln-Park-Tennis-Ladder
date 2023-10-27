@@ -94,7 +94,7 @@
                     <div class="card card-body text-bg-secondary" id="notification-box" style="color:black; max-height: 400px; overflow-y: auto">
                         {% if user.notifications %}
                             {% for notification in user.notifications %}
-                                {% if notification.type == "CHALLENGE" %}
+                                {% if notification.type == "Challenge" %}
                                     <div class="alert alert-secondary alert-dismissible fade show text-bg-secondary" id={{ notification.id }} style="font-size: .8em" role="alert">
                                         <p>
                                             <strong>{{ notification.type }}!</strong>

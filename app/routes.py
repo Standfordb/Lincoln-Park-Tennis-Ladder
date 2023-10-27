@@ -110,7 +110,7 @@ def input():
         date_played = request.form.get("date_played")
         match_type = request.form.get("type")
         if not match_type:
-            match_type = c.CHALLENGE
+            match_type = "Challenge"
         # Make sure no data is missing
         if not score or not opponent_id or not is_win or not date_played:
             flash("Please fill out all fields.")
@@ -140,8 +140,12 @@ def confirm():
             return redirect("/")
     elif request.method == "POST":
         match_id = request.form.get("match_id")
-        match = h.confirm_match(match_id)
-        if match.match_type == c.CHALLENGE:
+        try:
+            match = h.confirm_match(match_id)
+        except:
+            flash("There was a problem confirming your match results")
+            return redirect("/confirm")
+        if match.match_type == "Challenge":
             h.update_ranks(match.winner_id, match.loser_id)
             h.reset_challenge(match.winner.id, match.loser.id)
         return redirect("/confirm")
@@ -150,8 +154,26 @@ def confirm():
 @app.route("/dispute", methods=["POST"])
 def dispute():
     match_id = request.form.get("match_id")
-    h.delete_temp_match(match_id)
-    return redirect("/confirm")
+    try:
+        match = h.Temp_match.query.filter_by(id=match_id).first()
+        user = h.get_user()
+        h.create_notification(match.submit_by, user.id, c.DISPUTE)
+        h.delete_temp_match(match_id)
+        return redirect("/confirm")
+    except:
+        flash("There was a problem disputing your match")
+        return redirect("/confirm")
+    
+# Route to delete temp match if player disputes
+@app.route("/delete_match", methods=["POST"])
+def delete_match():
+    match_id = request.form.get("match_id")
+    try:
+        h.delete_temp_match(match_id)
+        return redirect("/confirm")
+    except:
+        flash("There was a problem deleting your match")
+        return redirect("/confirm")
 
 @app.route("/redirect_profile")
 def redirect_profile():    

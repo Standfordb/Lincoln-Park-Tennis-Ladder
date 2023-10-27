@@ -25,16 +25,15 @@
                                         <div class="col-12 col-lg-10 m-auto">
                                             <div class="row justify-content-between">
                                                 <div class="col-auto">
-                                                    <p>Score:</p>
+                                                    <p>Score: {{ match.score }}</p>
                                                 </div>
                                                 <div class="col-auto">
                                                     <p>
-                                                    {{ match.score }}
-                                                    {% if match.winner_id == session["USER"] %}
-                                                        ({{ match.match_type }} - win)
-                                                    {% else %}
-                                                        ({{ match.match_type }} - loss)
-                                                    {% endif %}
+                                                        {% if match.winner_id == session["USER"] %}
+                                                            ({{ match.match_type }} - win)
+                                                        {% else %}
+                                                            ({{ match.match_type }} - loss)
+                                                        {% endif %}
                                                     </p>
                                                 </div>
                                             </div>
@@ -63,7 +62,7 @@
                                         </div>
                                         <input name="match_id" type="hidden" value="{{ match.id }}">
                                         <div class="text-center">
-                                            <button class="btn btn-secondary" formaction="/dispute">Delete Match</button>
+                                            <button class="btn btn-secondary" formaction="/delete_match">Delete Match</button>
                                         </div>
                                     </fieldset>
                                 </form>
@@ -75,16 +74,15 @@
                                         <div class="col-12 col-lg-10 m-auto">
                                             <div class="row justify-content-between">
                                                 <div class="col-auto">
-                                                    <p>Score:</p>
+                                                    <p>Score: {{ match.score }}</p>
                                                 </div>
                                                 <div class="col-auto">
                                                     <p>
-                                                    {{ match.score }}
-                                                    {% if match.winner_id == session["USER"] %}
-                                                        ({{ match.match_type }} - win)
-                                                    {% else %}
-                                                        ({{ match.match_type }} - loss)
-                                                    {% endif %}
+                                                        {% if match.winner_id == session["USER"] %}
+                                                            ({{ match.match_type }} - win)
+                                                        {% else %}
+                                                            ({{ match.match_type }} - loss)
+                                                        {% endif %}
                                                     </p>
                                                 </div>
                                             </div>

@@ -312,7 +312,7 @@ def get_opponents(rank):
 
 def get_opponent():
     user = get_user()
-    opponent = User.query.filter_by(id=user.challenge).first()
+    opponent = User.query.filter_by(challenge=user.id).first()
     return opponent
 
 # Update ranks after a match
@@ -344,7 +344,8 @@ def delete_temp_match(id):
     temp_match = Temp_match.query.filter_by(id=id).first()
     db.session.delete(temp_match)
     db.session.commit()
-    return
+    return 
+    
 
 # Get all temp matches for user
 def get_temp_matches(id):
