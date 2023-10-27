@@ -124,7 +124,7 @@ def confirm_match(id):
     db.session.add(match)
     db.session.delete(temp_match)
     db.session.commit()
-    return
+    return match
 
 # Validate match data
 def validate_match_data(score, opponent_id, is_win, date_played, match_type):

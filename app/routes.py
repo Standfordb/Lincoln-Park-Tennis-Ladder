@@ -138,8 +138,7 @@ def confirm():
             return redirect("/")
     elif request.method == "POST":
         match_id = request.form.get("match_id")
-        h.confirm_match(match_id)
-        match = h.Match.query.filter_by(id=match_id).first()
+        match = h.confirm_match(match_id)
         if match.match_type == "Challenge":
             h.update_ranks(match.winner_id, match.loser_id)
         return redirect("/confirm")
