@@ -1,4 +1,4 @@
-from flask import flash, session
+from flask import flash, session, redirect
 from app import db
 from datetime import datetime
 import pytz
@@ -6,6 +6,92 @@ import bcrypt
 import re
 import app.constants as c
 import math
+
+
+
+
+#Create tables and classes for database--------------------------------------------------------------
+#
+#
+#
+
+# Create a connecting table between users and matches
+user_match = db.Table("user_match",
+                      db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
+                      db.Column("match_id", db.Integer, db.ForeignKey("match.id"))
+                      )
+
+# Create a connecting table between users and temp matches
+user_temp = db.Table("user_temp",
+                      db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
+                      db.Column("match_id", db.Integer, db.ForeignKey("temp_match.id"))
+                      )
+
+
+# Create database class for"User" table
+class User(db.Model): 
+    id = db.Column(db.Integer, primary_key=True)
+    first= db.Column(db.String(255), nullable=False)
+    last = db.Column(db.String(255), nullable=False)
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.LargeBinary, nullable=False)
+    salt = db.Column(db.LargeBinary, nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    phone = db.Column(db.String(255))
+    rank = db.Column(db.Integer(), default=0)
+    challenge = db.Column(db.Integer)
+    date_joined = db.Column(db.DateTime, default=datetime.utcnow)
+    matches = db.relationship("Match", secondary=user_match, backref="players")
+    notifications = db.relationship("Notification", backref="user", foreign_keys=("Notification.user_id"))
+    temp_matches = db.relationship("Temp_match", secondary=user_temp, backref="players")
+    matches_won = db.relationship("Match", backref="winner", foreign_keys="Match.winner_id", lazy=True)
+    matches_lost = db.relationship("Match", backref="loser", foreign_keys="Match.loser_id", lazy=True)
+    temp_matches_won = db.relationship("Temp_match", backref="winner", foreign_keys="Temp_match.winner_id", lazy=True)
+    temp_matches_lost = db.relationship("Temp_match", backref="loser", foreign_keys="Temp_match.loser_id", lazy=True)
+    msg_sent = db.relationship("Chat", backref="sender", foreign_keys="Chat.sender_id", lazy=True)
+    msg_received = db.relationship("Chat", backref="recipient", foreign_keys="Chat.recipient_id", lazy=True)
+
+    # Create a representation for the User class that is the users username
+    def __repr__(self):
+        return f"<User: {self.username}>"
+
+# Create database class for "Match" table    
+class Match(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    score = db.Column(db.String(50))
+    winner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    loser_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    date_played = db.Column(db.DateTime, default=datetime.utcnow)
+    match_type = db.Column(db.String(50))
+
+# Create a temporary match table to hold matches while they wait for confirmation
+class Temp_match(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    score = db.Column(db.String(50))
+    winner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    loser_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    date_played = db.Column(db.DateTime, default=datetime.utcnow)
+    match_type = db.Column(db.String(50))
+    submit_by = db.Column(db.Integer)
+
+# Create a table to hold chat messages
+class Chat(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    recipient_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    message = db.Column(db.String(500))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    broadcast = db.Column(db.Boolean, default=False)
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    originator_id = db.Column(db.Integer)
+    type = db.Column(db.String(50))
+    message = db.Column(db.String(255))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 
 
 
@@ -430,97 +516,46 @@ def remove_timestamp(match):
     match.date = match.date_played.strftime(c.TIMESTAMP_DATE_ONLY)
     return match
 
-def create_notification(user, originator, type):
-    origin = User.query.filter_by(id=originator).first()
-    message = c.NOTIFICATIONS[type] + f"{origin.first} {origin.last}."
-    notification = Notification(user_id=user, originator_id=originator, type=type, message=message)
+def create_notification(user_id, originator_id, type):
+    origin = User.query.filter_by(id=originator_id).first()
+    message = c.NOTIFICATIONS[type] + f" {origin.first} {origin.last}."
+    timestamp = datetime.now(tz=None)
+    timestamp = format_timestamp(timestamp)
+    notification = Notification(user_id=user_id, originator_id=originator_id, type=type, message=message, timestamp=timestamp)
     db.session.add(notification)
     db.session.commit()
     return
     
+def cancel_challenge(user_id, challenge_id):
+    user = User.query.filter_by(id=user_id).first()
+    chall_user = User.query.filter_by(id=challenge_id).first()
+    user.challenge = None
+    if chall_user.challenge == user.id:
+        chall_user.challenge = None
+    db.session.commit()
+    return
 
+def handle_challenge(msg, challenger_id, notification_id):
+    user = get_user()
+    notification = Notification.query.filter_by(id=notification_id).first()
+    if notification:
+        if msg == "accept":
+            user.challenge = challenger_id
+            db.session.delete(notification)
+            db.session.commit()
+            return
+        else:
+            challenger = User.query.filter_by(id=challenger_id).first()
+            challenger.challenge = None
+            create_notification(challenger.id, user.id, "CHALLENGE DECLINED")
+            db.session.delete(notification)
+            db.session.commit()
+            return
+    else:
+        return
 
-
-
-
-
-#Create tables and classes for database--------------------------------------------------------------
-#
-#
-#
-
-# Create a connecting table between users and matches
-user_match = db.Table("user_match",
-                      db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
-                      db.Column("match_id", db.Integer, db.ForeignKey("match.id"))
-                      )
-
-# Create a connecting table between users and temp matches
-user_temp = db.Table("user_temp",
-                      db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
-                      db.Column("match_id", db.Integer, db.ForeignKey("temp_match.id"))
-                      )
-
-
-# Create database class for"User" table
-class User(db.Model): 
-    id = db.Column(db.Integer, primary_key=True)
-    first= db.Column(db.String(255), nullable=False)
-    last = db.Column(db.String(255), nullable=False)
-    username = db.Column(db.String(255), unique=True, nullable=False)
-    password = db.Column(db.LargeBinary, nullable=False)
-    salt = db.Column(db.LargeBinary, nullable=False)
-    email = db.Column(db.String(255), unique=True, nullable=False)
-    phone = db.Column(db.String(255))
-    rank = db.Column(db.Integer(), default=0)
-    challenge = db.Column(db.Integer)
-    date_joined = db.Column(db.DateTime, default=datetime.utcnow)
-    matches = db.relationship("Match", secondary=user_match, backref="players")
-    notifications = db.relationship("Notification", backref="user", foreign_keys=("Notification.user_id"))
-    temp_matches = db.relationship("Temp_match", secondary=user_temp, backref="players")
-    matches_won = db.relationship("Match", backref="winner", foreign_keys="Match.winner_id", lazy=True)
-    matches_lost = db.relationship("Match", backref="loser", foreign_keys="Match.loser_id", lazy=True)
-    temp_matches_won = db.relationship("Temp_match", backref="winner", foreign_keys="Temp_match.winner_id", lazy=True)
-    temp_matches_lost = db.relationship("Temp_match", backref="loser", foreign_keys="Temp_match.loser_id", lazy=True)
-    msg_sent = db.relationship("Chat", backref="sender", foreign_keys="Chat.sender_id", lazy=True)
-    msg_received = db.relationship("Chat", backref="recipient", foreign_keys="Chat.recipient_id", lazy=True)
-
-    # Create a representation for the User class that is the users username
-    def __repr__(self):
-        return f"<User: {self.username}>"
-
-# Create database class for "Match" table    
-class Match(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    score = db.Column(db.String(50))
-    winner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    loser_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    date_played = db.Column(db.DateTime, default=datetime.utcnow)
-    match_type = db.Column(db.String(50))
-
-# Create a temporary match table to hold matches while they wait for confirmation
-class Temp_match(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    score = db.Column(db.String(50))
-    winner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    loser_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    date_played = db.Column(db.DateTime, default=datetime.utcnow)
-    match_type = db.Column(db.String(50))
-    submit_by = db.Column(db.Integer)
-
-# Create a table to hold chat messages
-class Chat(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    sender_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    recipient_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    message = db.Column(db.String(500))
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    broadcast = db.Column(db.Boolean, default=False)
-
-class Notification(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    originator_id = db.Column(db.Integer)
-    type = db.Column(db.String(50))
-    message = db.Column(db.String(255))
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+def remove_notification(id):
+    notification = Notification.query.filter_by(id=id).first()
+    db.session.delete(notification)
+    db.session.commit()
+    return

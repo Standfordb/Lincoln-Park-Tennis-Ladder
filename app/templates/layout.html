@@ -69,13 +69,20 @@
                                     <div class="navbar">
                                         <button class="navbar-toggler position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             <span class="navbar-toggler-icon"></span>
-                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                                4
+                                            {% if user.notifications %}
+                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="button-badge">
+                                                {{ user.notifications|count }}
                                                 <span class="visually-hidden">unread messages</span>
                                             </span>
+                                            {% endif %}
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-dark">
-                                        <li><a class="dropdown-item active" href="/redirect_profile">Profile <span class="badge text-bg-danger">3</span></a></li>
+                                        <li><a class="dropdown-item active" href="/redirect_profile">Profile 
+                                            {% if user.notifications %}
+                                                <span class="badge text-bg-danger" id="profile-badge">
+                                                    {{ user.notifications|count }}
+                                                </span></a></li>
+                                                {% endif %}
                                         <li><a class="dropdown-item" href="/edit">Edit Profile</a></li>
                                         <li><a class="dropdown-item" href="/info">Ladder Info</a></li>
                                         <li><a class="dropdown-item" href="/logout" id="log-out">Logout</a></li>

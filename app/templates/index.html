@@ -58,8 +58,14 @@
                             </td>
                             {% if 'USER' in session %}
                                 <td>
-                                    {% if player.rank - user.rank in range(-spread, 0) %}
-                                        <a href="/challenge?id={{ player.id }}"><button class="btn btn-secondary">Challenge!</button></a>
+                                    {% if user.challenge == None %}
+                                        {% if player.rank - user.rank in range(-spread, 0) %}
+                                            <a href="/challenge?id={{ player.id }}"><button class="btn btn-secondary">Challenge!</button></a>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if user.challenge == player.id %}
+                                        <a href="/cancel_challenge?id={{ player.id }}"><button class="btn btn-secondary">Cancel challenge</button></a>
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                             {% endif %}

@@ -9,7 +9,9 @@ TIMESTAMP_DATE_ONLY = "%m-%d-%Y"
 
 NOTIFICATIONS = {
     "CHALLENGE": "You have been challenged by",
+    "CHALLENGE DECLINED": "Your challenge has been declined by",
+    "CHALLENGE ACCEPTED": "Your challenge has been accepted by",
     "MESSAGE": "You have been messaged by",
-    "INPUT": "Your match results have been input by",
-    "CONFIRM": "Your match results have been confirmed by"
+    "MATCH REPORTED": "Your match results have been input by",
+    "MATCH CONFIRMED": "Your match results have been confirmed by"
 }

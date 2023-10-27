@@ -40,22 +40,7 @@
                                     <p>Win: {{ stats[1] }}</p>
                                     <p>Challenge win: {{ stats[2] }}</p>
                                 </div>
-                            </div>
-                            <div class="col-6">
-                                <button class="btn btn-secondary mb-3" id="chat-btn" style="width: 100%" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                                    Notifications
-                                </button>
-                                <div class="collapse" id="collapseExample">
-                                    <div class="card card-body text-bg-secondary" id="chat-box" style="color:black; max-height: 160px; overflow-y: auto">
-                                        {% for notification in profile.notifications %}
-                                            <div class="alert alert-secondary alert-dismissible fade show text-bg-secondary" style="font-size: .8em" role="alert">
-                                                <strong>{{ notification.type }}!</strong> {{ notification.message }}
-                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>    
+                            </div>  
                         <div class="row justify-content-center">
                             <div class="col-auto">
                                 <div><a href="/input"><button class="btn btn-secondary mb-1" type="button">Input Match Results</button></a></div>
@@ -101,6 +86,43 @@
                     </form>
                 </div>
             </div>
+            <div class="col-12 col-lg-4" id="notification-col">
+                <button class="btn btn-secondary mb-3" id="chat-btn" style="width: 100%" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                    Notifications
+                </button>
+                <div class="collapse" id="collapseExample">
+                    <div class="card card-body text-bg-secondary" id="notification-box" style="color:black; max-height: 400px; overflow-y: auto">
+                        {% if user.notifications %}
+                            {% for notification in user.notifications %}
+                                {% if notification.type == "CHALLENGE" %}
+                                    <div class="alert alert-secondary alert-dismissible fade show text-bg-secondary" id={{ notification.id }} style="font-size: .8em" role="alert">
+                                        <p>
+                                            <strong>{{ notification.type }}!</strong>
+                                             {{ notification.message }}
+                                        </p>
+                                        <button class="btn btn-dark btn-sm" name={{ notification.id }} id="accept" type="button" value={{ notification.originator_id }}>Accept</button>
+                                        <button class="btn btn-dark btn-sm" name={{ notification.id }} id="decline" type="button" value={{ notification.originator_id }}>Decline</button>
+                                        <p class="muted mb-0">{{ notification.timestamp }}</p>                             
+                                    </div>
+                                {% else %}
+                                <div class="alert alert-secondary alert-dismissible fade show text-bg-secondary" style="font-size: .8em" role="alert">
+                                    <p>
+                                        <strong>{{ notification.type }}!</strong>
+                                         {{ notification.message }}
+                                    </p>
+                                    <p class="muted mb-0">{{ notification.timestamp }}</p>  
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" name="close" id={{ notification.id }}></button>                           
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <div class="alert alert-secondary alert-dismissible fade show text-bg-secondary" style="font-size: .8em" role="alert">
+                               <strong>No notifications to show.</strong>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>  
             <div class="col-12 col-lg-8">
                 <div class="row justify-content-start">
                     <div class="col-4"></div>

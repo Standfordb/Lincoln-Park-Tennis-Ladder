@@ -54,8 +54,9 @@ def profile():
         profile, stats = h.get_profile(id)
         if "USER" in session:
             try:
-                messages = h.get_private_messages(profile.id, session["USER"])
-                return render_template("profile.html", profile=profile, stats=stats, messages=messages)
+                user = h.get_user()
+                messages = h.get_private_messages(profile.id, user.id)
+                return render_template("profile.html", profile=profile, stats=stats, messages=messages, user=user)
             except KeyError:
                 print("Exception caught! KeyError")
                 return render_template("profile.html", profile=profile, stats=stats)
@@ -97,7 +98,7 @@ def input():
             opponents = h.get_opponents(user.rank)
             friendlies = h.get_friendly_opponents()
             # Send username and opponents to input page
-            return render_template("input.html", opponents=opponents, friendlies=friendlies)
+            return render_template("input.html", opponents=opponents, friendlies=friendlies, user=user)
         except KeyError:
             print("Exception caught! KeyError")
             return redirect("/")
@@ -129,10 +130,11 @@ def input():
 def confirm():
     if request.method == "GET":
         try:
+            user = h.get_user()
             temp_matches = h.get_temp_matches(session["USER"])
             for match in temp_matches:
                 h.remove_timestamp(match)
-            return render_template("confirm.html", temp_matches=temp_matches)
+            return render_template("confirm.html", temp_matches=temp_matches, user=user)
         except KeyError:
             print("Exception caught! KeyError")
             return redirect("/")
@@ -155,8 +157,9 @@ def dispute():
 def redirect_profile():    
     if "USER" in session:
         try:
-            profile, stats = h.get_profile(session["USER"])
-            return render_template("profile.html", profile=profile, stats=stats, id=profile.id)
+            user = h.get_user()
+            profile, stats = h.get_profile(user.id)
+            return render_template("profile.html", profile=profile, stats=stats, id=profile.id, user=user)
         except KeyError:
             print("Exception caught! KeyError")
             return redirect("/")
@@ -193,14 +196,30 @@ def edit():
 
 @app.route("/info")
 def info():
-    return render_template("info.html")
+    user = h.get_user()
+    return render_template("info.html", user=user)
 
 @app.route("/challenge")
 def challenge():
     id = request.args.get("id")
+    recipient = h.User.query.filter_by(id=id).first()
     type = "CHALLENGE"
+    user = h.get_user()  
+    if recipient.challenge == None:
+        h.create_notification(id, user.id, type)
+        user.challenge = id
+        h.db.session.commit()
+        return redirect("/")
+    else:
+        flash("Player currently has an open challenge. Please wait until it is completed to challenge this player.")
+        return redirect("/")
+
+@app.route("/cancel_challenge")
+def cancel_challenge():
     user = h.get_user()
-    h.create_notification(id, user.id, type)
-    user.challenge = id
-    h.db.session.commit()
+    challenge_id = request.args.get("id")
+    h.cancel_challenge(user.id, challenge_id)
+    notification = h.Notification.query.filter_by(user_id=challenge_id, originator_id=user.id, type="CHALLENGE").first()
+    print("notification id =", notification.id)
+    h.remove_notification(notification.id)
     return redirect("/")

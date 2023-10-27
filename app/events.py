@@ -56,3 +56,19 @@ def handle_private_message(message, recipient):
                                 "message": msg.message,
                                 "time": h.format_timestamp(msg.timestamp)},
                                 to=SID[int(recipient)])
+
+@socketio.on("handle_challenge")
+def handle_challenge(msg, challenger_id, notification_id):
+    h.handle_challenge(msg, challenger_id, notification_id)
+    user = h.get_user()
+    count = len(user.notifications)
+    emit("update_notifications", {"id": notification_id,
+                                "count": count})
+
+@socketio.on("remove_notification")
+def remove_notification(id):
+    h.remove_notification(id)
+    user = h.get_user()
+    count = len(user.notifications)
+    emit("update_notifications", {"id": id,
+                                "count": count})
