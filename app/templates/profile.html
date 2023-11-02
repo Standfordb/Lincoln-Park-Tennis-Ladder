@@ -94,7 +94,7 @@
                     <div class="card card-body text-bg-secondary" id="notification-box" style="color:black; max-height: 400px; overflow-y: auto">
                         {% if user.notifications %}
                             {% for notification in user.notifications %}
-                                {% if notification.type == "Challenge" %}
+                                {% if notification.type == "CHALLENGE" %}
                                     <div class="alert alert-secondary alert-dismissible fade show text-bg-secondary" id={{ notification.id }} style="font-size: .8em" role="alert">
                                         <p>
                                             <strong>{{ notification.type }}!</strong>
@@ -156,7 +156,7 @@
                         </tr>
                     </thead>
                     <tbody id="all-matches">
-                        {% for match in profile.matches|sort(attribute='id', reverse=True)|sort(attribute='date_played', reverse=True) %}
+                        {% for match in profile.matches|sort(attribute='date_played', reverse=True)|sort(attribute='id', reverse=True) %}
                             <tr>
                                 <td>
                                     {% if match.winner_id == profile.id %}
@@ -165,7 +165,13 @@
                                         Loss
                                     {% endif %}
                                 </td>
-                                <td>{{ match.score }} <span class="muted">{{ match.match_type }}</span></td>
+                                <td>{{ match.score }} <span class="muted">
+                                    {% if match.match_type == "CHALLENGE" %}
+                                        Challenge
+                                    {% else %}
+                                        Friendly
+                                    {% endif %}
+                                </span></td>
                                 <td>{{ match.date }}</td>
                                 {% if match.winner_id == profile.id %}
                                 <td><a href="/profile?id={{ match.loser_id }}">
@@ -187,7 +193,7 @@
                     </tbody>
                     <tbody id="challenge-matches" style="display: none">
                         {% for match in profile.matches|sort(attribute='id', reverse=True)|sort(attribute='date_played', reverse=True) %}
-                            {% if match.match_type == "Challenge" %}
+                            {% if match.match_type == "CHALLENGE" %}
                                 <tr>
                                     <td>
                                         {% if match.winner_id == profile.id %}
@@ -196,10 +202,10 @@
                                             Loss
                                         {% endif %}
                                     </td>
-                                    <td>{{ match.score }} <span class="muted">{{ match.match_type }}</span></td>
+                                    <td>{{ match.score }} <span class="muted">{{ Challenge }}</span></td>
                                     <td>{{ match.date }}</td>
                                     {% if match.winner_id == profile.id %}
-                                    <td><a href="/profile?id={{ match.loser_id }}">
+                                        <td><a href="/profile?id={{ match.loser_id }}">
                                         {% if match.loser.first %}
                                             {{ match.loser.first }} {{ match.loser.last }}
                                         {% else %}

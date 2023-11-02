@@ -17,9 +17,142 @@
                 <div class="col-10 col-md-6 p-3">
         <form action="/input" method="post">
                 <fieldset>
-                    <div class="mb-1">
-                        <label for="score" class="form-label"><strong>Score: </strong></label>
-                        <input class="form-control" name="score" type="text" autocomplete="off" placeholder="Format: #-#(#-#) #-#(#-#)" autofocus required>
+                    <div class="row">
+                        <div class="col-4">
+                            <strong>1st Set: </strong>
+                            <br>
+                            <label class="mb-1"><input class="form-check-input" type="checkbox" id="1st-tie-check"><span class="muted">Tiebreak</span></label>
+                            <div class="row">
+                                <div class="col-auto">
+                                    <select class="form-control" name="1st-winner" style="width: auto" autofocus required>
+                                        <option value="None" selected>-</option>
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                    </select>
+                                    <select class="form-control" name="1st-loser" style="width: auto" autofocus required>
+                                        <option value="None" selected>-</option>
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                    </select>
+                                </div>
+                                <div class="col-auto" style="margin-left: -10px; display: none" id="1st-tiebreak">
+                                    <select class="form-control" name="1st-tie-winner" id="1st-tie-winner" style="width: auto" autofocus required>
+                                        <option value="None" selected>-</option>
+                                        {% for i in range(100) %}
+                                        <option value="{{ i }}">{{ i }}</option>
+                                    {% endfor %}
+                                    </select>
+                                    <select class="form-control" name="1st-tie-loser" id="1st-tie-loser" style="width: auto" autofocus required>
+                                        <option value="None" selected>-</option>
+                                        {% for i in range(100) %}
+                                            <option value="{{ i }}">{{ i }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <strong>2nd Set: </strong>
+                            <br>
+                            <label class="mb-1"><input class="form-check-input" type="checkbox" id="2nd-tie-check"><span class="muted">Tiebreak</span></label>
+                            <div class="row">
+                                <div class="col-auto">
+                                    <select class="form-control" name="2nd-winner" style="width: auto" autofocus required>
+                                        <option value="None" selected>-</option>
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                    </select>
+                                    <select class="form-control" name="2nd-loser" style="width: auto" autofocus required>
+                                        <option value="None" selected>-</option>
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                    </select>
+                                </div>
+                                <div class="col-auto" style="margin-left: -10px; display: none" id="2nd-tiebreak">
+                                    <select class="form-control" name="2nd-tie-winner" id="2nd-tie-winner" style="width: auto" autofocus required>
+                                        <option value="None" selected>-</option>
+                                        {% for i in range(100) %}
+                                        <option value="{{ i }}">{{ i }}</option>
+                                    {% endfor %}
+                                    </select>
+                                    <select class="form-control" name="2nd-tie-loser" id="2nd-tie-loser" style="width: auto" autofocus required>
+                                        <option value="None" selected>-</option>
+                                        {% for i in range(100) %}
+                                            <option value="{{ i }}">{{ i }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <strong>3rd Set: </strong>
+                            <br>
+                            <label class="mb-1"><input class="form-check-input" type="checkbox" id="3rd-tie-check"><span class="muted">Tiebreak</span></label>
+                            <div class="row">
+                                <div class="col-auto">
+                                    <select class="form-control" name="3rd-winner" style="width: auto" autofocus required>
+                                        <option value="None" selected>-</option>
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                    </select>
+                                    <select class="form-control" name="3rd-loser" style="width: auto" autofocus required>
+                                        <option value="None" selected>-</option>
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                    </select>
+                                </div>
+                                <div class="col-auto" style="margin-left: -10px; display: none" id="3rd-tiebreak">
+                                    <select class="form-control" name="3rd-tie-winner" id="3rd-tie-winner" style="width: auto" autofocus required>
+                                        <option value="None" selected>-</option>
+                                        {% for i in range(100) %}
+                                        <option value="{{ i }}">{{ i }}</option>
+                                    {% endfor %}
+                                    </select>
+                                    <select class="form-control" name="3rd-tie-loser" id="3rd-tie-loser" style="width: auto" autofocus required>
+                                        <option value="None" selected>-</option>
+                                        {% for i in range(100) %}
+                                            <option value="{{ i }}">{{ i }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <input class="form-check-input" name="type" id="friendly" type="checkbox" value="Friendly" autocomplete="off">

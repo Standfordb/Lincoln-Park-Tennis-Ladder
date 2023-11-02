@@ -104,13 +104,25 @@ def input():
             return redirect("/")
     elif request.method == "POST":
         # Get the data from the form
-        score = request.form.get("score").strip()
+        first_winner = request.form.get("1st-winner")
+        first_loser = request.form.get("1st-loser")
+        first_tie_winner = request.form.get("1st-tie-winner")
+        first_tie_loser = request.form.get("1st-tie-loser")
+        second_winner = request.form.get("2nd-winner")
+        second_loser = request.form.get("2nd-loser")
+        second_tie_winner = request.form.get("2nd-tie-winner")
+        second_tie_loser = request.form.get("2nd-tie-loser")
+        third_winner = request.form.get("3rd-winner")
+        third_loser = request.form.get("3rd-loser")
+        third_tie_winner = request.form.get("3rd-tie-winner")
+        third_tie_loser = request.form.get("3rd-tie-loser")
+        score = h.format_score(first_winner, first_loser, first_tie_winner, first_tie_loser, second_winner, second_loser, second_tie_winner, second_tie_loser, third_winner, third_loser, third_tie_winner, third_tie_loser)
         opponent_id = request.form.get("opponent")
         is_win = request.form.get("is_win")
         date_played = request.form.get("date_played")
         match_type = request.form.get("type")
         if not match_type:
-            match_type = "Challenge"
+            match_type = c.CHALLENGE
         # Make sure no data is missing
         if not score or not opponent_id or not is_win or not date_played:
             flash("Please fill out all fields.")

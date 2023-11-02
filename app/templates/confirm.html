@@ -15,7 +15,7 @@
             {% if not temp_matches %}
                 <h2 class="text-center">No matches to confirm</h2>
             {%else %}            
-                {% for match in temp_matches|sort(attribute='date') %}
+                {% for match in temp_matches|sort(attribute='date', reverse=True)|sort(attribute='id', reverse=True) %}
                     <div class="row justify-content-center">
                         <div class="col-8">
                             {% if match.submit_by == session["USER"] %}

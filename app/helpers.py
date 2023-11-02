@@ -583,3 +583,35 @@ def reset_challenge(user_id, chall_id):
     chall.challenge = None
     db.session.commit()
     return
+
+def format_score(first_winner, first_loser, first_tie_winner, first_tie_loser, second_winner, second_loser, second_tie_winner, second_tie_loser, third_winner, third_loser, third_tie_winner, third_tie_loser):
+    if first_tie_winner != "None":
+        first_set = f"{first_winner}-{first_loser}({first_tie_winner}-{first_tie_loser})"
+    else:
+        first_set = f"{first_winner}-{first_loser}"
+    
+    if second_tie_winner != "None":
+        second_set = f"{second_winner}-{second_loser}({second_tie_winner}-{second_tie_loser})"
+    elif second_winner != "None":
+        second_set = f"{second_winner}-{second_loser}"
+    else:
+        second_set = None
+    
+    if third_tie_winner != "None":
+        third_set = f"{third_winner}-{third_loser}({third_tie_winner}-{third_tie_loser})"
+    elif third_winner != "None":
+        third_set = f"{third_winner}-{third_loser}"
+    else:
+        third_set = None
+    
+    if third_set:
+        score = f"{first_set} {second_set} {third_set}"
+    elif second_set:
+        score = f"{first_set} {second_set}"
+    else:
+        score = f"{first_set}"
+    print("first set =", first_set)
+    print("second set =", second_set)
+    print("third set =", third_set)
+    print("score =", score)
+    return score
