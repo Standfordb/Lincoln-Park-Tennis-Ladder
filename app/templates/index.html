@@ -51,7 +51,7 @@
                             <td><a href="/profile?id={{ player.id }}" style="text-decoration: none">{{ player.first }} {{ player.last }}</a></td>
                             <td>#{{ player.rank }}</td>
                             <td>{% if player.matches %}
-                                    {{ ((player.matches_won|count/player.matches|count)*100)|round|int }}%
+                                    {{ player.chall_win_rate() }}
                                 {% else %}
                                     N/A
                                 {% endif %}

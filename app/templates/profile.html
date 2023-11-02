@@ -9,62 +9,92 @@
 
 {% block main %}
 
-    <div class="container">
-        <div class="p-3"></div>
-        <div class="row justify-content-center">
-            {% if "USER" in session %}
-                {% if profile.id != session["USER"] %}
-                    <div class="col-12 col-lg-6">
-                        <h1 class="text-center">{{ profile.first }} {{ profile.last }}</h1>
-                        <hr class="border-4 opacity-100">
-                        <div style="padding-left: 5%">
+    <div class="p-3"></div>
+    <div class="row justify-content-center">
+        {% if "USER" in session %}
+            {% if profile.id != session["USER"] %}
+                <div class="col-12 col-lg-6">
+                    <h1 class="text-center">{{ profile.first }} {{ profile.last }}</h1>
+                    <hr class="border-4 opacity-100">
+                    <div class="row">
+                        <div class="col-6" style="padding-left: 5%">
                             <p>Email: {{ profile.email }}</p>
                             <p>Phone: {{ profile.phone }}</p>
                             <p>Rank: {{ profile.rank }}</p>
-                            <p>Total Matches: {{ stats[0] }}</p>
-                            <p>Win: {{ stats[1] }}</p>
-                            <p>Challenge win: {{ stats[2] }}</p>
-                        </div> 
-                    </div>
-                {% else %}
-                    <div class="col-12 col-lg-6">
-                        <h1 class="text-center">{{ profile.first }} {{ profile.last }}</h1>
-                        <hr class="border-4 opacity-100">
-                        <div class="row">
-                            <div class="col-6">
-                                <div style="padding-left: 5%">
-                                    <p>Email: {{ profile.email }}</p>
-                                    <p>Phone: {{ profile.phone }}</p>
-                                    <p>Rank: {{ profile.rank }}</p>
-                                    <p>Total Matches: {{ stats[0] }}</p>
-                                    <p>Win: {{ stats[1] }}</p>
-                                    <p>Challenge win: {{ stats[2] }}</p>
-                                </div>
-                            </div>  
-                        <div class="row justify-content-center">
-                            <div class="col-auto">
-                                <div><a href="/input"><button class="btn btn-secondary mb-1" type="button">Input Match Results</button></a></div>
-                            </div>
-                            <div class="col-auto">
-                                <div><a href="/confirm"><button class="btn btn-secondary" type="button">Confirm Match Results</button></a></div>
-                            </div>
+                            <p>Total Matches: {{ profile.total_matches() }}</p>
+                            <p>Total Win Rate: {{ profile.win_rate() }}</p>
+                            <p>Challenge Win Rate: {{ profile.chall_win_rate() }}</p>
                         </div>
-                    </div>
-                {% endif %}
+                        <div class="col-6 text-end" style="padding-right: 5%">
+                            <div class="row mb-3">
+                                <div class="col-4"></div>
+                                <div class="col-8 text-center">
+                                    <img src="/static/images/tennisballicon.avif" alt="Profile picture" class="rounded" width="100px" height="100px">
+                                </div>
+                            </div>
+                            <p>Open Challenge: {{ profile.open_challenge() }}</p>
+                        </div>
+                    </div> 
+                </div>
             {% else %}
                 <div class="col-12 col-lg-6">
                     <h1 class="text-center">{{ profile.first }} {{ profile.last }}</h1>
                     <hr class="border-4 opacity-100">
-                    <div style="padding-left: 5%">
-                        <p>Email: {{ profile.email }}</p>
+                    <div class="row">
+                        <div class="col-6" style="padding-left: 5%">
+                            <p>Email: {{ profile.email }}</p>
                             <p>Phone: {{ profile.phone }}</p>
                             <p>Rank: {{ profile.rank }}</p>
-                            <p>Total Matches: {{ stats[0] }}</p>
-                            <p>Win: {{ stats[1] }}</p>
-                            <p>Challenge win: {{ stats[2] }}</p>
-                    </div> 
+                            <p>Total Matches: {{ profile.total_matches() }}</p>
+                            <p>Win: {{ profile.win_rate() }}</p>
+                            <p>Challenge win: {{ profile.chall_win_rate() }}</p>
+                        </div>  
+                        <div class="col-6 text-end" style="padding-right: 5%">
+                            <div class="row mb-3">
+                                <div class="col-4"></div>
+                                <div class="col-8 text-center">
+                                    <img src="/static/images/tennisballicon.avif" alt="Profile picture" class="rounded" width="100px" height="100px">
+                                </div>
+                            </div>
+                            <p>Open Challenge: {{ profile.open_challenge() }}</p>
+                        </div>
+                    <div class="row justify-content-center">
+                        <div class="col-auto">
+                            <div><a href="/input"><button class="btn btn-secondary mb-1" type="button">Input Match Results</button></a></div>
+                        </div>
+                        <div class="col-auto">
+                            <div><a href="/confirm"><button class="btn btn-secondary" type="button">Confirm Match Results</button></a></div>
+                        </div>
+                    </div>
+                </div>
             {% endif %}
-        </div>
+        {% else %}
+            <div class="col-12 col-lg-6">
+                <h1 class="text-center">{{ profile.first }} {{ profile.last }}</h1>
+                <hr class="border-4 opacity-100">
+                <div class="row">
+                    <div class="col-6" style="padding-left: 5%">
+                        <p>Email: {{ profile.email }}</p>
+                        <p>Phone: {{ profile.phone }}</p>
+                        <p>Rank: {{ profile.rank }}</p>
+                        <p>Total Matches: {{ profile.total_matches() }}</p>
+                        <p>Win: {{ profile.win_rate() }}</p>
+                        <p>Challenge win: {{ profile.chall_win_rate() }}</p>
+                    </div> 
+                    <div class="col-6 text-end" style="padding-right: 5%">
+                        <div class="row mb-3">
+                            <div class="col-4"></div>
+                            <div class="col-8 text-center">
+                                <img src="/static/images/tennisballicon.avif" alt="Profile picture" class="rounded" width="100px" height="100px">
+                            </div>
+                        </div>
+                        <p>Open Challenge: {{ profile.open_challenge() }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    {% if "USER" in session %}
         <div class="row justify-content-center">
             <div class="p-3"></div>
             <hr class="border-4 opacity-100">
@@ -98,7 +128,7 @@
                                     <div class="alert alert-secondary alert-dismissible fade show text-bg-secondary" id={{ notification.id }} style="font-size: .8em" role="alert">
                                         <p>
                                             <strong>{{ notification.type }}!</strong>
-                                             {{ notification.message }}
+                                            {{ notification.message }}
                                         </p>
                                         <button class="btn btn-dark btn-sm" name={{ notification.id }} id="accept" type="button" value={{ notification.originator_id }}>Accept</button>
                                         <button class="btn btn-dark btn-sm" name={{ notification.id }} id="decline" type="button" value={{ notification.originator_id }}>Decline</button>
@@ -108,7 +138,7 @@
                                 <div class="alert alert-secondary alert-dismissible fade show text-bg-secondary" style="font-size: .8em" role="alert">
                                     <p>
                                         <strong>{{ notification.type }}!</strong>
-                                         {{ notification.message }}
+                                        {{ notification.message }}
                                     </p>
                                     <a href="/profile?id={{ notification.originator_id }}">
                                         <button class="btn btn-dark btn-sm" type="button" name="close" id={{ notification.id }}>Go to their profile</button>
@@ -120,7 +150,7 @@
                                 <div class="alert alert-secondary alert-dismissible fade show text-bg-secondary" style="font-size: .8em" role="alert">
                                     <p>
                                         <strong>{{ notification.type }}!</strong>
-                                         {{ notification.message }}
+                                        {{ notification.message }}
                                     </p>
                                     <p class="muted mb-0">{{ notification.timestamp }}</p>  
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" name="close" id={{ notification.id }}></button>                           
@@ -129,7 +159,7 @@
                             {% endfor %}
                         {% else %}
                             <div class="alert alert-secondary alert-dismissible fade show text-bg-secondary" style="font-size: .8em" role="alert">
-                               <strong>No notifications to show.</strong>
+                            <strong>No notifications to show.</strong>
                             </div>
                         {% endif %}
                     </div>
@@ -139,11 +169,11 @@
                 <div class="row justify-content-start">
                     <div class="col-4"></div>
                     <div class="col-4 text-center">
-                        <h1 class=>Matches:</h1>
+                        <h1>Matches:</h1>
                     </div>
                     <div class="col-4 text-end align-self-end pb-2">
                         <input class="form-check-input" name="filter" type="checkbox" id="filter" autocomplete="off">
-                        <label for="filter" class="form--check-label">Challenges</label>
+                        <label for="filter" class="form-check-label">Challenges</label>
                     </div>
                 </div>
                 <table class="table table-dark table-striped table-hover">
@@ -156,7 +186,7 @@
                         </tr>
                     </thead>
                     <tbody id="all-matches">
-                        {% for match in profile.matches|sort(attribute='date_played', reverse=True)|sort(attribute='id', reverse=True) %}
+                        {% for match in profile.matches|sort(attribute='id', reverse=True)|sort(attribute='date_played', reverse=True) %}
                             <tr>
                                 <td>
                                     {% if match.winner_id == profile.id %}
@@ -172,7 +202,7 @@
                                         Friendly
                                     {% endif %}
                                 </span></td>
-                                <td>{{ match.date }}</td>
+                                <td>{{ match.date() }}</td>
                                 {% if match.winner_id == profile.id %}
                                 <td><a href="/profile?id={{ match.loser_id }}">
                                     {% if match.loser.first %}
@@ -202,8 +232,8 @@
                                             Loss
                                         {% endif %}
                                     </td>
-                                    <td>{{ match.score }} <span class="muted">{{ Challenge }}</span></td>
-                                    <td>{{ match.date }}</td>
+                                    <td>{{ match.score }} <span class="muted">Challenge</span></td>
+                                    <td>{{ match.date() }}</td>
                                     {% if match.winner_id == profile.id %}
                                         <td><a href="/profile?id={{ match.loser_id }}">
                                         {% if match.loser.first %}
@@ -226,6 +256,101 @@
                 </table>
             </div>
         </div>
-    </div>
+    {% else %}
+        <div class="row justify-content-center">
+            <div class="p-3"></div>
+            <hr class="border-4 opacity-100">
+            <div class="col-12 col-lg-8">
+                <div class="row justify-content-start">
+                    <div class="col-4"></div>
+                    <div class="col-4 text-center">
+                        <h1>Matches:</h1>
+                    </div>
+                    <div class="col-4 text-end align-self-end pb-2">
+                        <input class="form-check-input" name="filter" type="checkbox" id="filter" autocomplete="off">
+                        <label for="filter" class="form-check-label">Challenges</label>
+                    </div>
+                </div>
+                <table class="table table-dark table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%">Result:</th>
+                            <th style="width: 30%">Score:</th>
+                            <th style="width: 20%">Date:</th>
+                            <th style="width: 30%">Opponent:</th>
+                        </tr>
+                    </thead>
+                    <tbody id="all-matches">
+                        {% for match in profile.matches|sort(attribute='id', reverse=True)|sort(attribute='date_played', reverse=True) %}
+                            <tr>
+                                <td>
+                                    {% if match.winner_id == profile.id %}
+                                        Win
+                                    {% else %}
+                                        Loss
+                                    {% endif %}
+                                </td>
+                                <td>{{ match.score }} <span class="muted">
+                                    {% if match.match_type == "CHALLENGE" %}
+                                        Challenge
+                                    {% else %}
+                                        Friendly
+                                    {% endif %}
+                                </span></td>
+                                <td>{{ match.date() }}</td>
+                                {% if match.winner_id == profile.id %}
+                                <td><a href="/profile?id={{ match.loser_id }}">
+                                    {% if match.loser.first %}
+                                        {{ match.loser.first }} {{ match.loser.last }}
+                                    {% else %}
+                                        [Account Deleted]
+                                    {% endif %}</a></td>
+                                {% else %}
+                                <td><a href="/profile?id={{ match.winner_id }}">
+                                    {% if match.winner.first %}
+                                        {{ match.winner.first }} {{ match.winner.last }}
+                                    {% else %}
+                                        [Account Deleted]
+                                    {% endif %}</a></td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tbody id="challenge-matches" style="display: none">
+                        {% for match in profile.matches|sort(attribute='id', reverse=True)|sort(attribute='date_played', reverse=True) %}
+                            {% if match.match_type == "CHALLENGE" %}
+                                <tr>
+                                    <td>
+                                        {% if match.winner_id == profile.id %}
+                                            Win
+                                        {% else %}
+                                            Loss
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ match.score }} <span class="muted">Challenge</span></td>
+                                    <td>{{ match.date() }}</td>
+                                    {% if match.winner_id == profile.id %}
+                                        <td><a href="/profile?id={{ match.loser_id }}">
+                                        {% if match.loser.first %}
+                                            {{ match.loser.first }} {{ match.loser.last }}
+                                        {% else %}
+                                            [Account Deleted]
+                                        {% endif %}</a></td>
+                                    {% else %}
+                                    <td><a href="/profile?id={{ match.winner_id }}">
+                                        {% if match.winner.first %}
+                                            {{ match.winner.first }} {{ match.winner.last }}
+                                        {% else %}
+                                            [Account Deleted]
+                                        {% endif %}</a></td>
+                                    {% endif %}
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
 
 {% endblock %}

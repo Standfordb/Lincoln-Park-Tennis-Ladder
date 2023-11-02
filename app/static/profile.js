@@ -2,7 +2,7 @@ const socket = io();
 const chatBox = document.getElementById("chat-box");
 const allMatches = document.getElementById("all-matches");
 const challengeMatches = document.getElementById("challenge-matches");
-const checkbox = document.getElementById("filter");
+const checkBox = document.getElementById("filter");
 const chatCol = document.getElementById("chat-col");
 const recipient = document.getElementById("recipient").value;
 const user = document.getElementById("user").value; 
@@ -40,13 +40,13 @@ socket.on("private_message", function(data) {
     }
 })
 
-checkbox.addEventListener("change", function() {
-    if (checkbox.checked) {
+checkBox.addEventListener("change", function() {
+    if (checkBox.checked) {
         allMatches.style.display = "none";
         challengeMatches.style.display = "";
     } else {
         allMatches.style.display = "";
-        challengeMatches.style.display = "none"
+        challengeMatches.style.display = "none";
     }
 })
 

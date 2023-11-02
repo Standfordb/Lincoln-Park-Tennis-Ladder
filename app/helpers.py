@@ -55,6 +55,50 @@ class User(db.Model):
     # Create a representation for the User class that is the users username
     def __repr__(self):
         return f"<User: {self.username}>"
+    
+    def win_rate(self):
+        if self.matches:
+            matches = len(self.matches)
+            wins = len(self.matches_won)
+            win_rate = int((wins/matches)*100)
+            win_rate = str(win_rate) + "%"
+        else:
+            matches = "N/A"
+        return win_rate
+    
+    def chall_win_rate(self):
+        challs = 0
+        wins = 0
+        if self.matches:
+            for match in self.matches:
+                if match.match_type == c.CHALLENGE:
+                    challs += 1
+                    if match.winner_id == self.id:
+                        wins += 1
+            if challs >0 :
+                chall_win_rate = int((wins/challs)*100)
+                chall_win_rate = str(chall_win_rate) + "%"
+            else:
+                chall_win_rate = "N/A"
+        else:
+            chall_win_rate = "N/A"
+        return chall_win_rate
+    
+    def open_challenge(self):
+        if self.challenge:
+            opp = User.query.filter_by(id=self.challenge).first()
+            opp = f"{opp.first} {opp.last}"
+        else:
+            opp = "N/A"
+        return opp
+    
+    def total_matches(self):
+        if self.matches:
+            total = len(self.matches)
+        else:
+            total = "No matches played yet"
+        return total
+
 
 # Create database class for "Match" table    
 class Match(db.Model):
@@ -65,6 +109,10 @@ class Match(db.Model):
     date_played = db.Column(db.DateTime, default=datetime.utcnow)
     match_type = db.Column(db.String(50))
 
+    def date(self):
+        date = remove_timestamp(self.date_played)
+        return date
+
 # Create a temporary match table to hold matches while they wait for confirmation
 class Temp_match(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -74,6 +122,10 @@ class Temp_match(db.Model):
     date_played = db.Column(db.DateTime, default=datetime.utcnow)
     match_type = db.Column(db.String(50))
     submit_by = db.Column(db.Integer)
+
+    def date(self):
+        date = remove_timestamp(self.date_played)
+        return date
 
 # Create a table to hold chat messages
 class Chat(db.Model):
@@ -263,35 +315,7 @@ def get_players(page):
 # Get the profile info
 def get_profile(id):
     profile = User.query.filter_by(id=id).first()
-    challenges = Match.query.filter_by(match_type="Challenge").all()
-    challenges_won = 0
-    challenges_lost = 0
-    stats = []
-    if profile.matches:
-        for match in profile.matches:
-            remove_timestamp(match)
-        stats.append(len(profile.matches))
-        win_rate = int(len(profile.matches_won) / len(profile.matches) * 100)
-        win_rate = str(win_rate) + "%"
-        stats.append(win_rate)
-        for challenge in challenges:
-            if challenge.winner.id == profile.id:
-                challenges_won += 1
-            elif challenge.loser.id == profile.id:
-                challenges_lost += 1
-        try:
-            challenge_rate = int(challenges_won/(challenges_won + challenges_lost) * 100)
-            challenge_rate = str(challenge_rate) + "%"
-            stats.append(challenge_rate)
-        except ZeroDivisionError:
-            challenge_rate = "N/A"
-            stats.append(challenge_rate)
-    else:
-        stats.append("No matches played yet")
-        stats.append("N/A")
-        stats.append("N/A")
-    
-    return profile, stats
+    return profile
 
 def get_friendly_opponents():
     friendlies = User.query.filter(User.id!=session["USER"]).all()
@@ -519,9 +543,9 @@ def format_timestamp(timestamp):
     time = timestamp.strftime(c.TIMESTAMP_FULL)
     return time
 
-def remove_timestamp(match):
-    match.date = match.date_played.strftime(c.TIMESTAMP_DATE_ONLY)
-    return match
+def remove_timestamp(timestamp):
+    timestamp = timestamp.strftime(c.TIMESTAMP_DATE_ONLY)
+    return timestamp
 
 def create_notification(user_id, originator_id, type):
     origin = User.query.filter_by(id=originator_id).first()

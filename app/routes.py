@@ -51,17 +51,17 @@ def register():
 def profile():
         # Get the id of the profile to pull up
         id = request.args.get('id')
-        profile, stats = h.get_profile(id)
+        profile = h.get_profile(id)
         if "USER" in session:
             try:
                 user = h.get_user()
                 messages = h.get_private_messages(profile.id, user.id)
-                return render_template("profile.html", profile=profile, stats=stats, messages=messages, user=user)
+                return render_template("profile.html", profile=profile, messages=messages, user=user)
             except KeyError:
                 print("Exception caught! KeyError")
-                return render_template("profile.html", profile=profile, stats=stats)
+                return render_template("profile.html", profile=profile)
         else:
-            return render_template("profile.html", profile=profile, stats=stats)
+            return render_template("profile.html", profile=profile)
 
 # Logout button 
 @app.route("/logout")
@@ -144,8 +144,6 @@ def confirm():
         try:
             user = h.get_user()
             temp_matches = h.get_temp_matches(session["USER"])
-            for match in temp_matches:
-                h.remove_timestamp(match)
             return render_template("confirm.html", temp_matches=temp_matches, user=user)
         except KeyError:
             print("Exception caught! KeyError")
@@ -157,7 +155,7 @@ def confirm():
         except:
             flash("There was a problem confirming your match results")
             return redirect("/confirm")
-        if match.match_type == "Challenge":
+        if match.match_type == c.CHALLENGE:
             h.update_ranks(match.winner_id, match.loser_id)
             h.reset_challenge(match.winner.id, match.loser.id)
         return redirect("/confirm")
@@ -192,8 +190,8 @@ def redirect_profile():
     if "USER" in session:
         try:
             user = h.get_user()
-            profile, stats = h.get_profile(user.id)
-            return render_template("profile.html", profile=profile, stats=stats, id=profile.id, user=user)
+            profile = h.get_profile(user.id)
+            return render_template("profile.html", profile=profile, id=profile.id, user=user)
         except KeyError:
             print("Exception caught! KeyError")
             return redirect("/")
