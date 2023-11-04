@@ -9,92 +9,88 @@
 
 {% block main %}
 
+    <input type="hidden" id="user" value={{ user.id }}>
+    <input type="hidden" id="profile" value={{ profile.id }}>
     <div class="p-3"></div>
     <div class="row justify-content-center">
-        {% if "USER" in session %}
-            {% if profile.id != session["USER"] %}
-                <div class="col-12 col-lg-6">
-                    <h1 class="text-center">{{ profile.first }} {{ profile.last }}</h1>
-                    <hr class="border-4 opacity-100">
-                    <div class="row">
-                        <div class="col-6" style="padding-left: 5%">
-                            <p>Email: {{ profile.email }}</p>
-                            <p>Phone: {{ profile.phone }}</p>
-                            <p>Rank: {{ profile.rank }}</p>
-                            <p>Total Matches: {{ profile.total_matches() }}</p>
-                            <p>Total Win Rate: {{ profile.win_rate() }}</p>
-                            <p>Challenge Win Rate: {{ profile.chall_win_rate() }}</p>
-                        </div>
-                        <div class="col-6 text-end" style="padding-right: 5%">
-                            <div class="row mb-3">
-                                <div class="col-4"></div>
-                                <div class="col-8 text-center">
-                                    <img src="/static/images/tennisballicon.avif" alt="Profile picture" class="rounded" width="100px" height="100px">
-                                </div>
-                            </div>
-                            <p>Open Challenge: {{ profile.open_challenge() }}</p>
-                        </div>
-                    </div> 
+        <div class="col-12 col-lg-6">
+            <h1 class="text-center">{{ profile.first }} {{ profile.last }}</h1>
+            <hr class="border-4 opacity-100">
+            <div class="row">
+                <div class="col-6" style="padding-left: 5%">
+                    <p>
+                        <strong>
+                            Email:
+                        </strong>
+                        {{ profile.email }}
+                    </p>
+                    <p>
+                        <strong>Phone
+
+                        </strong>
+                        {{ profile.phone }}
+                    </p>
+                    <p>
+                        <strong>
+                            Rank
+                        </strong>
+                        {{ profile.rank }}
+                    </p>
+                    <p><strong>
+                        Total Matches:
+                        </strong>
+                        {{ profile.total_matches() }}
+                    </p>
+                    <p>
+                        <strong>
+                            Total Win Rate:
+                        </strong>
+                        {{ profile.win_rate() }}
+                    </p>
+                    <p>
+                        <strong>
+                            Challenge Win Rate:
+                        </strong>
+                        {{ profile.chall_win_rate() }}
+                    </p>
                 </div>
-            {% else %}
-                <div class="col-12 col-lg-6">
-                    <h1 class="text-center">{{ profile.first }} {{ profile.last }}</h1>
-                    <hr class="border-4 opacity-100">
-                    <div class="row">
-                        <div class="col-6" style="padding-left: 5%">
-                            <p>Email: {{ profile.email }}</p>
-                            <p>Phone: {{ profile.phone }}</p>
-                            <p>Rank: {{ profile.rank }}</p>
-                            <p>Total Matches: {{ profile.total_matches() }}</p>
-                            <p>Win: {{ profile.win_rate() }}</p>
-                            <p>Challenge win: {{ profile.chall_win_rate() }}</p>
-                        </div>  
-                        <div class="col-6 text-end" style="padding-right: 5%">
-                            <div class="row mb-3">
-                                <div class="col-4"></div>
-                                <div class="col-8 text-center">
-                                    <img src="/static/images/tennisballicon.avif" alt="Profile picture" class="rounded" width="100px" height="100px">
-                                </div>
-                            </div>
-                            <p>Open Challenge: {{ profile.open_challenge() }}</p>
-                        </div>
-                    <div class="row justify-content-center">
-                        <div class="col-auto">
-                            <div><a href="/input"><button class="btn btn-secondary mb-1" type="button">Input Match Results</button></a></div>
-                        </div>
-                        <div class="col-auto">
-                            <div><a href="/confirm"><button class="btn btn-secondary" type="button">Confirm Match Results</button></a></div>
+                <div class="col-6 text-end" style="padding-right: 5%">
+                    <div class="row mb-3">
+                        <div class="col-4"></div>
+                        <div class="col-8 text-center">
+                            <img src="/static/images/tennisballicon.avif" alt="Profile picture" class="rounded" width="100px" height="100px">
                         </div>
                     </div>
+                    <p>
+                        <strong>
+                            Open Challenge:
+                        </strong>
+                        {{ profile.open_challenge() }}
+                    </p>
+                    <p id="h2h-t">
+                        <span style="white-space: nowrap">
+                            <strong>
+                                Head to Head (Total):
+                            </strong>
+                        </span> 
+                        <span style="white-space: nowrap">
+                            {{ profile.h2h(profile.id) }}
+                        </span>
+                    </p>
+                    <p id="h2h-c">
+                        <span style="white-space: nowrap">
+                            <strong>
+                                Head to Head (Challenge):
+                            </strong>
+                        </span> 
+                        <span style="white-space: nowrap">
+                            {{ profile.chall_h2h(profile.id) }}
+                        </span>
+                    </p>
                 </div>
-            {% endif %}
-        {% else %}
-            <div class="col-12 col-lg-6">
-                <h1 class="text-center">{{ profile.first }} {{ profile.last }}</h1>
-                <hr class="border-4 opacity-100">
-                <div class="row">
-                    <div class="col-6" style="padding-left: 5%">
-                        <p>Email: {{ profile.email }}</p>
-                        <p>Phone: {{ profile.phone }}</p>
-                        <p>Rank: {{ profile.rank }}</p>
-                        <p>Total Matches: {{ profile.total_matches() }}</p>
-                        <p>Win: {{ profile.win_rate() }}</p>
-                        <p>Challenge win: {{ profile.chall_win_rate() }}</p>
-                    </div> 
-                    <div class="col-6 text-end" style="padding-right: 5%">
-                        <div class="row mb-3">
-                            <div class="col-4"></div>
-                            <div class="col-8 text-center">
-                                <img src="/static/images/tennisballicon.avif" alt="Profile picture" class="rounded" width="100px" height="100px">
-                            </div>
-                        </div>
-                        <p>Open Challenge: {{ profile.open_challenge() }}</p>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
+            </div> 
+        </div>
     </div>
-    {% if "USER" in session %}
         <div class="row justify-content-center">
             <div class="p-3"></div>
             <hr class="border-4 opacity-100">
@@ -130,8 +126,8 @@
                                             <strong>{{ notification.type }}!</strong>
                                             {{ notification.message }}
                                         </p>
-                                        <button class="btn btn-dark btn-sm" name={{ notification.id }} id="accept" type="button" value={{ notification.originator_id }}>Accept</button>
-                                        <button class="btn btn-dark btn-sm" name={{ notification.id }} id="decline" type="button" value={{ notification.originator_id }}>Decline</button>
+                                        <button class="btn btn-dark btn-sm" name="accept" id={{ notification.id }} type="button" value={{ notification.originator_id }}>Accept</button>
+                                        <button class="btn btn-dark btn-sm" name="decline" id={{ notification.id }} type="button" value={{ notification.originator_id }}>Decline</button>
                                         <p class="muted mb-0">{{ notification.timestamp }}</p>                             
                                     </div>
                                 {% elif notification.type == "MESSAGE" %}
@@ -256,101 +252,5 @@
                 </table>
             </div>
         </div>
-    {% else %}
-        <div class="row justify-content-center">
-            <div class="p-3"></div>
-            <hr class="border-4 opacity-100">
-            <div class="col-12 col-lg-8">
-                <div class="row justify-content-start">
-                    <div class="col-4"></div>
-                    <div class="col-4 text-center">
-                        <h1>Matches:</h1>
-                    </div>
-                    <div class="col-4 text-end align-self-end pb-2">
-                        <input class="form-check-input" name="filter" type="checkbox" id="filter" autocomplete="off">
-                        <label for="filter" class="form-check-label">Challenges</label>
-                    </div>
-                </div>
-                <table class="table table-dark table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th style="width: 20%">Result:</th>
-                            <th style="width: 30%">Score:</th>
-                            <th style="width: 20%">Date:</th>
-                            <th style="width: 30%">Opponent:</th>
-                        </tr>
-                    </thead>
-                    <tbody id="all-matches">
-                        {% for match in profile.matches|sort(attribute='id', reverse=True)|sort(attribute='date_played', reverse=True) %}
-                            <tr>
-                                <td>
-                                    {% if match.winner_id == profile.id %}
-                                        Win
-                                    {% else %}
-                                        Loss
-                                    {% endif %}
-                                </td>
-                                <td>{{ match.score }} <span class="muted">
-                                    {% if match.match_type == "CHALLENGE" %}
-                                        Challenge
-                                    {% else %}
-                                        Friendly
-                                    {% endif %}
-                                </span></td>
-                                <td>{{ match.date() }}</td>
-                                {% if match.winner_id == profile.id %}
-                                <td><a href="/profile?id={{ match.loser_id }}">
-                                    {% if match.loser.first %}
-                                        {{ match.loser.first }} {{ match.loser.last }}
-                                    {% else %}
-                                        [Account Deleted]
-                                    {% endif %}</a></td>
-                                {% else %}
-                                <td><a href="/profile?id={{ match.winner_id }}">
-                                    {% if match.winner.first %}
-                                        {{ match.winner.first }} {{ match.winner.last }}
-                                    {% else %}
-                                        [Account Deleted]
-                                    {% endif %}</a></td>
-                                {% endif %}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                    <tbody id="challenge-matches" style="display: none">
-                        {% for match in profile.matches|sort(attribute='id', reverse=True)|sort(attribute='date_played', reverse=True) %}
-                            {% if match.match_type == "CHALLENGE" %}
-                                <tr>
-                                    <td>
-                                        {% if match.winner_id == profile.id %}
-                                            Win
-                                        {% else %}
-                                            Loss
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ match.score }} <span class="muted">Challenge</span></td>
-                                    <td>{{ match.date() }}</td>
-                                    {% if match.winner_id == profile.id %}
-                                        <td><a href="/profile?id={{ match.loser_id }}">
-                                        {% if match.loser.first %}
-                                            {{ match.loser.first }} {{ match.loser.last }}
-                                        {% else %}
-                                            [Account Deleted]
-                                        {% endif %}</a></td>
-                                    {% else %}
-                                    <td><a href="/profile?id={{ match.winner_id }}">
-                                        {% if match.winner.first %}
-                                            {{ match.winner.first }} {{ match.winner.last }}
-                                        {% else %}
-                                            [Account Deleted]
-                                        {% endif %}</a></td>
-                                    {% endif %}
-                                </tr>
-                            {% endif %}
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    {% endif %}
 
 {% endblock %}

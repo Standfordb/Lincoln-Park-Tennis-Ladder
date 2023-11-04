@@ -98,6 +98,36 @@ class User(db.Model):
         else:
             total = "No matches played yet"
         return total
+    
+    def h2h(self, id):
+        losses = 0
+        wins = 0
+        for match in self.matches:
+            if match.winner_id != id and match.loser_id != id:
+                pass
+            else:
+                if match.winner_id == self.id:
+                    wins += 1
+                else:
+                    losses += 1
+        h2h = f"{wins} wins | {losses} losses"
+        return h2h
+    
+    def chall_h2h(self, id):
+        losses = 0
+        wins = 0
+        for match in self.matches:
+            if match.winner_id != id and match.loser_id != id:
+                    pass
+            else:
+                if match.match_type == c.CHALLENGE:
+                    if match.winner_id == self.id:
+                        wins += 1
+                    else:
+                        losses +=1
+        h2h = f"{wins} wins | {losses} losses"
+        return h2h
+                    
 
 
 # Create database class for "Match" table    
@@ -144,6 +174,8 @@ class Notification(db.Model):
     message = db.Column(db.String(255))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
+class No_user():
+    id = 0
 
 
 
@@ -213,13 +245,15 @@ def create_session(username):
     user = User.query.filter(User.username.ilike(username)).first()
     session["USER"] = user.id
     session["USERNAME"] = user.username
+    print(f"User {session['USERNAME']} logged on!")
     return
 
 
 # Remove the current user from the session
 def remove_session():
-    session.pop("USER", None)
-    session.pop("USERNAME", None)
+    print(f"User {session['USERNAME']} logged out! ")
+    session.pop("USER")
+    session.pop("USERNAME")
     return
     
 # Record match results to match table and assign to correct users
@@ -596,6 +630,7 @@ def handle_challenge(msg, challenger_id, notification_id):
 
 def remove_notification(id):
     notification = Notification.query.filter_by(id=id).first()
+    print(notification)
     db.session.delete(notification)
     db.session.commit()
     return

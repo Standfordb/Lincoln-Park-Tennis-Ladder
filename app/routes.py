@@ -59,9 +59,10 @@ def profile():
                 return render_template("profile.html", profile=profile, messages=messages, user=user)
             except KeyError:
                 print("Exception caught! KeyError")
-                return render_template("profile.html", profile=profile)
+                return render_template("profile.html", profile=profile, user=0)
         else:
-            return render_template("profile.html", profile=profile)
+            user = h.No_user()
+            return render_template("profile.html", profile=profile, user=user)
 
 # Logout button 
 @app.route("/logout")
