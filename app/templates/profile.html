@@ -141,7 +141,7 @@
                                         {{ notification.message }}
                                     </p>
                                     <a href="/profile?id={{ notification.originator_id }}">
-                                        <button class="btn btn-dark btn-sm" type="button" name="close" id={{ notification.id }}>Go to their profile</button>
+                                        <button class="btn btn-dark btn-sm" type="button" name="profile-btn" id={{ notification.id }}>Go to their profile</button>
                                     </a>
                                         <p class="muted mb-0">{{ notification.timestamp }}</p>  
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" name="close" id={{ notification.id }}></button>                           

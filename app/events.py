@@ -12,6 +12,7 @@ def handle_connect():
     if "USER" in session:
         SID[session["USER"]] = request.sid
         print("Client connected: ", session["USERNAME"])
+        print("SID =", SID)
     else:
         print("Client connected!")
 
@@ -19,7 +20,7 @@ def handle_connect():
 @socketio.on("disconnect")
 def handle_connect():
     if "USER" in session:
-        SID[session["USER"]] = None
+        SID.pop(session["USER"])
         print("Client disconnected: ", session["USERNAME"])
     else:
         print("Client disconnected!")
@@ -47,19 +48,22 @@ def handle_private_message(message, recipient):
     else:
         msg = h.save_private_message(message, recipient)
         notification = h.Notification.query.filter_by(user_id=recipient, originator_id=msg.sender.id, type=c.MESSAGE).first()
-        if not notification:
-            h.create_notification(recipient, msg.sender.id, c.MESSAGE)
+        
         emit("private_message", {"sender": msg.sender.id,
                                  "name": msg.sender.first,
                                 "message": msg.message,
                                 "time": h.format_timestamp(msg.timestamp)},
                                 to=SID[session["USER"]])
+        
         if int(recipient) in SID:
             emit("private_message", {"sender": msg.sender.id,
                                  "name": msg.sender.first,
                                 "message": msg.message,
                                 "time": h.format_timestamp(msg.timestamp)},
                                 to=SID[int(recipient)])
+        else:
+            if not notification:
+                h.create_notification(recipient, msg.sender.id, c.MESSAGE)
 
 @socketio.on("handle_challenge")
 def handle_challenge(msg, challenger_id, notification_id):

@@ -64,6 +64,9 @@ notificationBox.addEventListener("click", event => {
     if (event.target.name === "close") {
         let id = event.target.id;
         socket.emit("remove_notification", id);
+    } else if (event.target.name === "profile-btn") {
+        let id = event.target.id
+        socket.emit("remove_notification", id)
     } else {
         let msg = event.target.id;
         let challenger_id = event.target.value;
