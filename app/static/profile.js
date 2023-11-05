@@ -10,7 +10,6 @@ const notificationCol = document.getElementById("notification-col");
 const notificationBox = document.getElementById("notification-box");
 const h2hT = document.getElementById("h2h-t");
 const h2hC = document.getElementById("h2h-c");
-  
 
 
 if (user == '0') {

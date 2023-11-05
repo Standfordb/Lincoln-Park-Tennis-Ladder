@@ -63,7 +63,7 @@ class User(db.Model):
             win_rate = int((wins/matches)*100)
             win_rate = str(win_rate) + "%"
         else:
-            matches = "N/A"
+            win_rate = "N/A"
         return win_rate
     
     def chall_win_rate(self):
@@ -99,29 +99,29 @@ class User(db.Model):
             total = "No matches played yet"
         return total
     
-    def h2h(self, id):
+    def h2h(self, opp):
         losses = 0
         wins = 0
         for match in self.matches:
-            if match.winner_id != id and match.loser_id != id:
+            if match.winner_id != opp and match.loser_id != opp:
                 pass
             else:
-                if match.winner_id == self.id:
+                if match.winner_id == opp:
                     wins += 1
                 else:
                     losses += 1
         h2h = f"{wins} wins | {losses} losses"
         return h2h
     
-    def chall_h2h(self, id):
+    def chall_h2h(self, opp):
         losses = 0
         wins = 0
         for match in self.matches:
-            if match.winner_id != id and match.loser_id != id:
+            if match.winner_id != opp and match.loser_id != opp:
                     pass
             else:
                 if match.match_type == c.CHALLENGE:
-                    if match.winner_id == self.id:
+                    if match.winner_id == opp:
                         wins += 1
                     else:
                         losses +=1
@@ -173,6 +173,10 @@ class Notification(db.Model):
     type = db.Column(db.String(50))
     message = db.Column(db.String(255))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def time(self):
+        time = format_timestamp(self.timestamp)
+        return time
 
 class No_user():
     id = 0
@@ -584,9 +588,9 @@ def remove_timestamp(timestamp):
 def create_notification(user_id, originator_id, type):
     origin = User.query.filter_by(id=originator_id).first()
     message = c.NOTIFICATIONS[type] + f" {origin.first} {origin.last}."
-    timestamp = datetime.now(tz=None)
-    timestamp = format_timestamp(timestamp)
-    notification = Notification(user_id=user_id, originator_id=originator_id, type=type, message=message, timestamp=timestamp)
+    #timestamp = datetime.now(tz=None)
+    #timestamp = format_timestamp(datetime.now)
+    notification = Notification(user_id=user_id, originator_id=originator_id, type=type, message=message)
     db.session.add(notification)
     db.session.commit()
     return
@@ -645,19 +649,31 @@ def reset_challenge(user_id, chall_id):
 
 def format_score(first_winner, first_loser, first_tie_winner, first_tie_loser, second_winner, second_loser, second_tie_winner, second_tie_loser, third_winner, third_loser, third_tie_winner, third_tie_loser):
     if first_tie_winner != "None":
-        first_set = f"{first_winner}-{first_loser}({first_tie_winner}-{first_tie_loser})"
+        if first_tie_winner > first_tie_loser:
+            first_tie = first_tie_loser
+        else:
+            first_tie = first_tie_winner
+        first_set = f"{first_winner}-{first_loser}({first_tie})"
     else:
         first_set = f"{first_winner}-{first_loser}"
     
     if second_tie_winner != "None":
-        second_set = f"{second_winner}-{second_loser}({second_tie_winner}-{second_tie_loser})"
+        if second_tie_winner > second_tie_loser:
+            second_tie = second_tie_loser
+        else:
+            second_tie = second_tie_winner
+        second_set = f"{second_winner}-{second_loser}({second_tie})"
     elif second_winner != "None":
         second_set = f"{second_winner}-{second_loser}"
     else:
         second_set = None
     
     if third_tie_winner != "None":
-        third_set = f"{third_winner}-{third_loser}({third_tie_winner}-{third_tie_loser})"
+        if third_tie_winner > third_tie_loser:
+            third_tie = third_tie_loser
+        else:
+            third_tie = third_tie_winner
+        third_set = f"{third_winner}-{third_loser}({third_tie})"
     elif third_winner != "None":
         third_set = f"{third_winner}-{third_loser}"
     else:
@@ -669,8 +685,4 @@ def format_score(first_winner, first_loser, first_tie_winner, first_tie_loser, s
         score = f"{first_set} {second_set}"
     else:
         score = f"{first_set}"
-    print("first set =", first_set)
-    print("second set =", second_set)
-    print("third set =", third_set)
-    print("score =", score)
     return score

@@ -70,21 +70,21 @@
                     <p id="h2h-t">
                         <span style="white-space: nowrap">
                             <strong>
-                                Head to Head (Total):
+                                You vs. {{ profile.first }} (Total):
                             </strong>
                         </span> 
                         <span style="white-space: nowrap">
-                            {{ profile.h2h(profile.id) }}
+                            {{ profile.h2h(user.id) }}
                         </span>
                     </p>
                     <p id="h2h-c">
                         <span style="white-space: nowrap">
                             <strong>
-                                Head to Head (Challenge):
+                                You vs. {{ profile.first }} (Challenge):
                             </strong>
                         </span> 
                         <span style="white-space: nowrap">
-                            {{ profile.chall_h2h(profile.id) }}
+                            {{ profile.chall_h2h(user.id) }}
                         </span>
                     </p>
                 </div>
@@ -128,7 +128,7 @@
                                         </p>
                                         <button class="btn btn-dark btn-sm" name="accept" id={{ notification.id }} type="button" value={{ notification.originator_id }}>Accept</button>
                                         <button class="btn btn-dark btn-sm" name="decline" id={{ notification.id }} type="button" value={{ notification.originator_id }}>Decline</button>
-                                        <p class="muted mb-0">{{ notification.timestamp }}</p>                             
+                                        <p class="muted mb-0">{{ notification.time() }}</p>                             
                                     </div>
                                 {% elif notification.type == "MESSAGE" %}
                                 <div class="alert alert-secondary alert-dismissible fade show text-bg-secondary" style="font-size: .8em" role="alert">
@@ -139,7 +139,7 @@
                                     <a href="/profile?id={{ notification.originator_id }}">
                                         <button class="btn btn-dark btn-sm" type="button" name="profile-btn" id={{ notification.id }}>Go to their profile</button>
                                     </a>
-                                        <p class="muted mb-0">{{ notification.timestamp }}</p>  
+                                        <p class="muted mb-0">{{ notification.time() }}</p>  
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" name="close" id={{ notification.id }}></button>                           
                                 </div>
                                 {% else %}
@@ -148,7 +148,7 @@
                                         <strong>{{ notification.type }}!</strong>
                                         {{ notification.message }}
                                     </p>
-                                    <p class="muted mb-0">{{ notification.timestamp }}</p>  
+                                    <p class="muted mb-0">{{ notification.time() }}</p>  
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" name="close" id={{ notification.id }}></button>                           
                                 </div>
                                 {% endif %}
