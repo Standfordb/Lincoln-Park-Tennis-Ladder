@@ -416,7 +416,7 @@ def get_temp_matches(id):
 
 # Check inputs against appropriate regular expressions
 def email_regex(email):
-    regex = re.compile("[^@.]*@[^@.]*\.[^@.]*")
+    regex = re.compile("[^@]*@[^@]*\.[^@.]*")
     p = regex.match(email)
     if p:
         return True
@@ -500,7 +500,6 @@ def validate_update(username, email, phone, new_password, confirm_new_password, 
                 flash("Email already in use. Please use a different email.")
                 return False
     if phone:
-        phone = format_phone(phone)
         if not phone_regex(phone):
             flash("Invalid phone number. Please re-enter")
             return False

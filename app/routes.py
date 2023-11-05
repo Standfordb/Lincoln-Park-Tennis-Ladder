@@ -51,18 +51,16 @@ def register():
 def profile():
         # Get the id of the profile to pull up
         id = request.args.get('id')
-        profile = h.get_profile(id)
+        profile, stats = h.get_profile(id)
         if "USER" in session:
             try:
-                user = h.get_user()
-                messages = h.get_private_messages(profile.id, user.id)
-                return render_template("profile.html", profile=profile, messages=messages, user=user)
+                messages = h.get_private_messages(profile.id, session["USER"])
+                return render_template("profile.html", profile=profile, stats=stats, messages=messages)
             except KeyError:
                 print("Exception caught! KeyError")
-                return render_template("profile.html", profile=profile, user=0)
+                return render_template("profile.html", profile=profile, stats=stats)
         else:
-            user = h.No_user()
-            return render_template("profile.html", profile=profile, user=user)
+            return render_template("profile.html", profile=profile, stats=stats)
 
 # Logout button 
 @app.route("/logout")
@@ -96,34 +94,22 @@ def input():
         try:
             # Find the opponents within 3 ranks of user
             user = h.get_user()
-            opponent = h.get_opponent()
+            opponents = h.get_opponents(user.rank)
             friendlies = h.get_friendly_opponents()
             # Send username and opponents to input page
-            return render_template("input.html", opponent=opponent, friendlies=friendlies, user=user)
+            return render_template("input.html", opponents=opponents, friendlies=friendlies)
         except KeyError:
             print("Exception caught! KeyError")
             return redirect("/")
     elif request.method == "POST":
         # Get the data from the form
-        first_winner = request.form.get("1st-winner")
-        first_loser = request.form.get("1st-loser")
-        first_tie_winner = request.form.get("1st-tie-winner")
-        first_tie_loser = request.form.get("1st-tie-loser")
-        second_winner = request.form.get("2nd-winner")
-        second_loser = request.form.get("2nd-loser")
-        second_tie_winner = request.form.get("2nd-tie-winner")
-        second_tie_loser = request.form.get("2nd-tie-loser")
-        third_winner = request.form.get("3rd-winner")
-        third_loser = request.form.get("3rd-loser")
-        third_tie_winner = request.form.get("3rd-tie-winner")
-        third_tie_loser = request.form.get("3rd-tie-loser")
-        score = h.format_score(first_winner, first_loser, first_tie_winner, first_tie_loser, second_winner, second_loser, second_tie_winner, second_tie_loser, third_winner, third_loser, third_tie_winner, third_tie_loser)
+        score = request.form.get("score").strip()
         opponent_id = request.form.get("opponent")
         is_win = request.form.get("is_win")
         date_played = request.form.get("date_played")
         match_type = request.form.get("type")
         if not match_type:
-            match_type = c.CHALLENGE
+            match_type = "Challenge"
         # Make sure no data is missing
         if not score or not opponent_id or not is_win or not date_played:
             flash("Please fill out all fields.")
@@ -135,64 +121,41 @@ def input():
         else:
             # If all looks good, record the match to Temp_match database to await confirmation
             h.record_match(score, opponent_id, is_win, date_played, match_type, session["USER"])
-            h.create_notification(opponent_id, session["USER"], c.MATCH_REPORTED)
-            return redirect("/redirect_profile")
+            profile, stats = h.get_profile(session["USER"])
+            return redirect(url_for("profile", profile=profile, stats=stats, id=profile.id))
 
 # Route to confirm and entry in the Temp_match database and commit it to the Matches database
 @app.route("/confirm", methods=["GET", "POST"])
 def confirm():
     if request.method == "GET":
         try:
-            user = h.get_user()
             temp_matches = h.get_temp_matches(session["USER"])
-            return render_template("confirm.html", temp_matches=temp_matches, user=user)
+            for match in temp_matches:
+                h.remove_timestamp(match)
+            return render_template("confirm.html", temp_matches=temp_matches)
         except KeyError:
             print("Exception caught! KeyError")
             return redirect("/")
     elif request.method == "POST":
         match_id = request.form.get("match_id")
-        try:
-            match = h.confirm_match(match_id)
-        except:
-            flash("There was a problem confirming your match results")
-            return redirect("/confirm")
-        if match.match_type == c.CHALLENGE:
+        match = h.confirm_match(match_id)
+        if match.match_type == "Challenge":
             h.update_ranks(match.winner_id, match.loser_id)
-            h.reset_challenge(match.winner.id, match.loser.id)
         return redirect("/confirm")
 
 # Route to delete temp match if player disputes
 @app.route("/dispute", methods=["POST"])
 def dispute():
     match_id = request.form.get("match_id")
-    try:
-        match = h.Temp_match.query.filter_by(id=match_id).first()
-        user = h.get_user()
-        h.create_notification(match.submit_by, user.id, c.DISPUTE)
-        h.delete_temp_match(match_id)
-        return redirect("/confirm")
-    except:
-        flash("There was a problem disputing your match")
-        return redirect("/confirm")
-    
-# Route to delete temp match if player disputes
-@app.route("/delete_match", methods=["POST"])
-def delete_match():
-    match_id = request.form.get("match_id")
-    try:
-        h.delete_temp_match(match_id)
-        return redirect("/confirm")
-    except:
-        flash("There was a problem deleting your match")
-        return redirect("/confirm")
+    h.delete_temp_match(match_id)
+    return redirect("/confirm")
 
 @app.route("/redirect_profile")
 def redirect_profile():    
     if "USER" in session:
         try:
-            user = h.get_user()
-            profile = h.get_profile(user.id)
-            return render_template("profile.html", profile=profile, id=profile.id, user=user)
+            profile, stats = h.get_profile(session["USER"])
+            return render_template("profile.html", profile=profile, stats=stats, id=profile.id)
         except KeyError:
             print("Exception caught! KeyError")
             return redirect("/")
@@ -229,27 +192,4 @@ def edit():
 
 @app.route("/info")
 def info():
-    user = h.get_user()
-    return render_template("info.html", user=user)
-
-@app.route("/challenge")
-def challenge():
-    id = request.args.get("id")
-    recipient = h.User.query.filter_by(id=id).first()
-    user = h.get_user()
-    if recipient.challenge != None:
-        flash("Player currently has an open challenge. Please wait until it is completed to challenge this player.")
-        return redirect("/")
-    else:
-        h.create_notification(id, user.id, c.CHALLENGE)
-        user.challenge = id
-        h.db.session.commit()
-        return redirect("/")
-        
-
-@app.route("/cancel_challenge")
-def cancel_challenge():
-    user = h.get_user()
-    challenge_id = request.args.get("id")
-    h.cancel_challenge(user.id, challenge_id)
-    return redirect("/")
+    return render_template("info.html")
