@@ -51,16 +51,16 @@ def register():
 def profile():
         # Get the id of the profile to pull up
         id = request.args.get('id')
-        profile, stats = h.get_profile(id)
+        profile = h.get_profile(id)
         if "USER" in session:
             try:
                 messages = h.get_private_messages(profile.id, session["USER"])
-                return render_template("profile.html", profile=profile, stats=stats, messages=messages)
+                return render_template("profile.html", profile=profile, messages=messages)
             except KeyError:
                 print("Exception caught! KeyError")
-                return render_template("profile.html", profile=profile, stats=stats)
+                return render_template("profile.html", profile=profile)
         else:
-            return render_template("profile.html", profile=profile, stats=stats)
+            return render_template("profile.html", profile=profile)
 
 # Logout button 
 @app.route("/logout")
