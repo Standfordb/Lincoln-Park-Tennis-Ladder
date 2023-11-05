@@ -17,11 +17,11 @@
     <hr class="border-4 opacity-100">
     <div class="row justify-content-center">
         <div class="col-12 col-md-4">
-                <button class="btn btn-secondary" id="chat-btn" style="width: 100%" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                <button class="btn btn-secondary" id="chat-btn" style="width: 100%" type="button" data-bs-toggle="collapse" data-bs-target="#collapseChat" aria-expanded="false" aria-controls="collapseExample">
                     Message Board
                 </button>
             </p>
-            <div class="collapse" id="collapseExample">
+            <div class="collapse" id="collapseChat">
                 <div class="card card-body text-bg-secondary mb-3" id="chat-box" style="color:black; min-height: 300px; max-height: 400px; overflow-y: scroll;">
                         {% for msg in messages %}
                             <p><strong>{{ msg.sender.first }} {{ msg.sender.last }}:</strong> {{ msg.message }} <span class="muted">({{ msg.time }})</span></p>
@@ -51,15 +51,21 @@
                             <td><a href="/profile?id={{ player.id }}" style="text-decoration: none">{{ player.first }} {{ player.last }}</a></td>
                             <td>#{{ player.rank }}</td>
                             <td>{% if player.matches %}
-                                    {{ ((player.matches_won|count/player.matches|count)*100)|round|int }}%
+                                    {{ player.chall_win_rate() }}
                                 {% else %}
                                     N/A
                                 {% endif %}
                             </td>
                             {% if 'USER' in session %}
                                 <td>
-                                    {% if player.rank - user.rank in range(-spread, 0) %}
-                                        <button class="btn btn-secondary">Challenge!</button>
+                                    {% if user.challenge == None %}
+                                        {% if player.rank - user.rank in range(-spread, 0) %}
+                                            <a href="/challenge?id={{ player.id }}"><button class="btn btn-secondary">Challenge!</button></a>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if user.challenge == player.id %}
+                                        <a href="/cancel_challenge?id={{ player.id }}"><button class="btn btn-secondary">Cancel challenge</button></a>
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                             {% endif %}

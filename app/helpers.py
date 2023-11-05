@@ -10,6 +10,180 @@ import math
 
 
 
+#Create tables and classes for database--------------------------------------------------------------
+#
+#
+#
+
+# Create a connecting table between users and matches
+user_match = db.Table("user_match",
+                      db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
+                      db.Column("match_id", db.Integer, db.ForeignKey("match.id"))
+                      )
+
+# Create a connecting table between users and temp matches
+user_temp = db.Table("user_temp",
+                      db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
+                      db.Column("match_id", db.Integer, db.ForeignKey("temp_match.id"))
+                      )
+
+
+# Create database class for"User" table
+class User(db.Model): 
+    id = db.Column(db.Integer, primary_key=True)
+    first= db.Column(db.String(255), nullable=False)
+    last = db.Column(db.String(255), nullable=False)
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.LargeBinary, nullable=False)
+    salt = db.Column(db.LargeBinary, nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    phone = db.Column(db.String(255))
+    rank = db.Column(db.Integer(), default=0)
+    challenge = db.Column(db.Integer)
+    date_joined = db.Column(db.DateTime, default=datetime.utcnow)
+    matches = db.relationship("Match", secondary=user_match, backref="players")
+    notifications = db.relationship("Notification", backref="user", foreign_keys=("Notification.user_id"))
+    temp_matches = db.relationship("Temp_match", secondary=user_temp, backref="players")
+    matches_won = db.relationship("Match", backref="winner", foreign_keys="Match.winner_id", lazy=True)
+    matches_lost = db.relationship("Match", backref="loser", foreign_keys="Match.loser_id", lazy=True)
+    temp_matches_won = db.relationship("Temp_match", backref="winner", foreign_keys="Temp_match.winner_id", lazy=True)
+    temp_matches_lost = db.relationship("Temp_match", backref="loser", foreign_keys="Temp_match.loser_id", lazy=True)
+    msg_sent = db.relationship("Chat", backref="sender", foreign_keys="Chat.sender_id", lazy=True)
+    msg_received = db.relationship("Chat", backref="recipient", foreign_keys="Chat.recipient_id", lazy=True)
+
+    # Create a representation for the User class that is the users username
+    def __repr__(self):
+        return f"<User: {self.username}>"
+    
+    def win_rate(self):
+        if self.matches:
+            matches = len(self.matches)
+            wins = len(self.matches_won)
+            win_rate = int((wins/matches)*100)
+            win_rate = str(win_rate) + "%"
+        else:
+            win_rate = "N/A"
+        return win_rate
+    
+    def chall_win_rate(self):
+        challs = 0
+        wins = 0
+        if self.matches:
+            for match in self.matches:
+                if match.match_type == c.CHALLENGE:
+                    challs += 1
+                    if match.winner_id == self.id:
+                        wins += 1
+            if challs >0 :
+                chall_win_rate = int((wins/challs)*100)
+                chall_win_rate = str(chall_win_rate) + "%"
+            else:
+                chall_win_rate = "N/A"
+        else:
+            chall_win_rate = "N/A"
+        return chall_win_rate
+    
+    def open_challenge(self):
+        if self.challenge:
+            opp = User.query.filter_by(id=self.challenge).first()
+            opp = f"{opp.first} {opp.last}"
+        else:
+            opp = "N/A"
+        return opp
+    
+    def total_matches(self):
+        if self.matches:
+            total = len(self.matches)
+        else:
+            total = "No matches played yet"
+        return total
+    
+    def h2h(self, opp):
+        losses = 0
+        wins = 0
+        for match in self.matches:
+            if match.winner_id != opp and match.loser_id != opp:
+                pass
+            else:
+                if match.winner_id == opp:
+                    wins += 1
+                else:
+                    losses += 1
+        h2h = f"{wins} wins | {losses} losses"
+        return h2h
+    
+    def chall_h2h(self, opp):
+        losses = 0
+        wins = 0
+        for match in self.matches:
+            if match.winner_id != opp and match.loser_id != opp:
+                    pass
+            else:
+                if match.match_type == c.CHALLENGE:
+                    if match.winner_id == opp:
+                        wins += 1
+                    else:
+                        losses +=1
+        h2h = f"{wins} wins | {losses} losses"
+        return h2h
+                    
+
+
+# Create database class for "Match" table    
+class Match(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    score = db.Column(db.String(50))
+    winner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    loser_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    date_played = db.Column(db.DateTime, default=datetime.utcnow)
+    match_type = db.Column(db.String(50))
+
+    def date(self):
+        date = remove_timestamp(self.date_played)
+        return date
+
+# Create a temporary match table to hold matches while they wait for confirmation
+class Temp_match(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    score = db.Column(db.String(50))
+    winner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    loser_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    date_played = db.Column(db.DateTime, default=datetime.utcnow)
+    match_type = db.Column(db.String(50))
+    submit_by = db.Column(db.Integer)
+
+    def date(self):
+        date = remove_timestamp(self.date_played)
+        return date
+
+# Create a table to hold chat messages
+class Chat(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    recipient_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    message = db.Column(db.String(500))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    broadcast = db.Column(db.Boolean, default=False)
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    originator_id = db.Column(db.Integer)
+    type = db.Column(db.String(50))
+    message = db.Column(db.String(255))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def time(self):
+        time = format_timestamp(self.timestamp)
+        return time
+
+class No_user():
+    id = 0
+
+
+
+
+
 #Define helper functions ---------------------------------------------------------------------------
 #
 #
@@ -74,13 +248,15 @@ def create_session(username):
     user = User.query.filter(User.username.ilike(username)).first()
     session["USER"] = user.id
     session["USERNAME"] = user.username
+    print(f"User {session['USERNAME']} logged on!")
     return
 
 
 # Remove the current user from the session
 def remove_session():
-    session.pop("USER", None)
-    session.pop("USERNAME", None)
+    print(f"User {session['USERNAME']} logged out! ")
+    session.pop("USER")
+    session.pop("USERNAME")
     return
     
 # Record match results to match table and assign to correct users
@@ -176,35 +352,7 @@ def get_players(page):
 # Get the profile info
 def get_profile(id):
     profile = User.query.filter_by(id=id).first()
-    challenges = Match.query.filter_by(match_type="Challenge").all()
-    challenges_won = 0
-    challenges_lost = 0
-    stats = []
-    if profile.matches:
-        for match in profile.matches:
-            remove_timestamp(match)
-        stats.append(len(profile.matches))
-        win_rate = int(len(profile.matches_won) / len(profile.matches) * 100)
-        win_rate = str(win_rate) + "%"
-        stats.append(win_rate)
-        for challenge in challenges:
-            if challenge.winner.id == profile.id:
-                challenges_won += 1
-            elif challenge.loser.id == profile.id:
-                challenges_lost += 1
-        try:
-            challenge_rate = int(challenges_won/(challenges_won + challenges_lost) * 100)
-            challenge_rate = str(challenge_rate) + "%"
-            stats.append(challenge_rate)
-        except ZeroDivisionError:
-            challenge_rate = "N/A"
-            stats.append(challenge_rate)
-    else:
-        stats.append("No matches played yet")
-        stats.append("N/A")
-        stats.append("N/A")
-    
-    return profile, stats
+    return profile
 
 def get_friendly_opponents():
     friendlies = User.query.filter(User.id!=session["USER"]).all()
@@ -222,6 +370,11 @@ def get_opponents(rank):
         j += 1
     opponents.pop(c.CHALLENGE_SPREAD)
     return opponents
+
+def get_opponent():
+    user = get_user()
+    opponent = User.query.filter_by(challenge=user.id).first()
+    return opponent
 
 # Update ranks after a match
 def update_ranks(winner_id, loser_id):
@@ -252,7 +405,8 @@ def delete_temp_match(id):
     temp_match = Temp_match.query.filter_by(id=id).first()
     db.session.delete(temp_match)
     db.session.commit()
-    return
+    return 
+    
 
 # Get all temp matches for user
 def get_temp_matches(id):
@@ -425,85 +579,108 @@ def format_timestamp(timestamp):
     time = timestamp.strftime(c.TIMESTAMP_FULL)
     return time
 
-def remove_timestamp(match):
-    match.date = match.date_played.strftime(c.TIMESTAMP_DATE_ONLY)
-    return match
+def remove_timestamp(timestamp):
+    timestamp = timestamp.strftime(c.TIMESTAMP_DATE_ONLY)
+    return timestamp
 
+def create_notification(user_id, originator_id, type):
+    origin = User.query.filter_by(id=originator_id).first()
+    message = c.NOTIFICATIONS[type] + f" {origin.first} {origin.last}."
+    #timestamp = datetime.now(tz=None)
+    #timestamp = format_timestamp(datetime.now)
+    notification = Notification(user_id=user_id, originator_id=originator_id, type=type, message=message)
+    db.session.add(notification)
+    db.session.commit()
+    return
+    
+def cancel_challenge(user_id, challenge_id):
+    user = User.query.filter_by(id=user_id).first()
+    chall_user = User.query.filter_by(id=challenge_id).first()
+    user.challenge = None
+    if chall_user.challenge == user.id:
+        chall_user.challenge = None
+        create_notification(chall_user.id, user.id, c.CHALL_CANCEL)
+    notification = Notification.query.filter_by(user_id=challenge_id, originator_id=user.id, type=c.CHALLENGE).first()
+    if notification:
+        remove_notification(notification.id)
+    db.session.commit()
+    return
 
+def handle_challenge(msg, challenger_id, notification_id):
+    user = get_user()
+    challenger = User.query.filter_by(id=challenger_id).first()
+    notification = Notification.query.filter_by(id=notification_id).first()
+    if notification:
+        if msg == "accept":
+            if user.challenge != None:
+                return False
+            else:
+                user.challenge = challenger_id
+                challenger.challenge = user.id
+                create_notification(challenger.id, user.id, c.CHALL_ACCEPTED)
+                db.session.delete(notification)
+                db.session.commit()
+                return True
+        else:
+            create_notification(challenger.id, user.id, c.CHALL_DECLINED)
+            challenger.challenge = None
+            db.session.delete(notification)
+            db.session.commit()
+            return True
+    else:
+        return
 
+def remove_notification(id):
+    notification = Notification.query.filter_by(id=id).first()
+    print(notification)
+    db.session.delete(notification)
+    db.session.commit()
+    return
 
+def reset_challenge(user_id, chall_id):
+    user = User.query.filter_by(id=user_id).first()
+    chall = User.query.filter_by(id=chall_id).first()
+    user.challenge = None
+    chall.challenge = None
+    db.session.commit()
+    return
 
-
-
-
-#Create tables and classes for database--------------------------------------------------------------
-#
-#
-#
-
-# Create a connecting table between users and matches
-user_match = db.Table("user_match",
-                      db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
-                      db.Column("match_id", db.Integer, db.ForeignKey("match.id"))
-                      )
-
-# Create a connecting table between users and temp matches
-user_temp = db.Table("user_temp",
-                      db.Column("user_id", db.Integer, db.ForeignKey("user.id")),
-                      db.Column("match_id", db.Integer, db.ForeignKey("temp_match.id"))
-                      )
-
-
-# Create database class for"User" table
-class User(db.Model): 
-    id = db.Column(db.Integer, primary_key=True)
-    first= db.Column(db.String(255), nullable=False)
-    last = db.Column(db.String(255), nullable=False)
-    username = db.Column(db.String(255), unique=True, nullable=False)
-    password = db.Column(db.LargeBinary, nullable=False)
-    salt = db.Column(db.LargeBinary, nullable=False)
-    email = db.Column(db.String(255), unique=True, nullable=False)
-    phone = db.Column(db.String(255))
-    rank = db.Column(db.Integer(), default=0)
-    challenge = db.Column(db.Integer)
-    date_joined = db.Column(db.DateTime, default=datetime.utcnow)
-    matches = db.relationship("Match", secondary=user_match, backref="players")
-    temp_matches = db.relationship("Temp_match", secondary=user_temp, backref="players")
-    matches_won = db.relationship("Match", backref="winner", foreign_keys="Match.winner_id", lazy=True)
-    matches_lost = db.relationship("Match", backref="loser", foreign_keys="Match.loser_id", lazy=True)
-    temp_matches_won = db.relationship("Temp_match", backref="winner", foreign_keys="Temp_match.winner_id", lazy=True)
-    temp_matches_lost = db.relationship("Temp_match", backref="loser", foreign_keys="Temp_match.loser_id", lazy=True)
-    msg_sent = db.relationship("Chat", backref="sender", foreign_keys="Chat.sender_id", lazy=True)
-    msg_received = db.relationship("Chat", backref="recipient", foreign_keys="Chat.recipient_id", lazy=True)
-
-    # Create a representation for the User class that is the users username
-    def __repr__(self):
-        return f"<User: {self.username}>"
-
-# Create database class for "Match" table    
-class Match(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    score = db.Column(db.String(50))
-    winner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    loser_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    date_played = db.Column(db.DateTime, default=datetime.utcnow)
-    match_type = db.Column(db.String(50))
-
-# Create a temporary match table to hold matches while they wait for confirmation
-class Temp_match(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    score = db.Column(db.String(50))
-    winner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    loser_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    date_played = db.Column(db.DateTime, default=datetime.utcnow)
-    match_type = db.Column(db.String(50))
-    submit_by = db.Column(db.Integer)
-
-# Create a table to hold chat messages
-class Chat(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    sender_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    recipient_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    message = db.Column(db.String(500))
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    broadcast = db.Column(db.Boolean, default=False)
+def format_score(first_winner, first_loser, first_tie_winner, first_tie_loser, second_winner, second_loser, second_tie_winner, second_tie_loser, third_winner, third_loser, third_tie_winner, third_tie_loser):
+    if first_tie_winner != "None":
+        if first_tie_winner > first_tie_loser:
+            first_tie = first_tie_loser
+        else:
+            first_tie = first_tie_winner
+        first_set = f"{first_winner}-{first_loser}({first_tie})"
+    else:
+        first_set = f"{first_winner}-{first_loser}"
+    
+    if second_tie_winner != "None":
+        if second_tie_winner > second_tie_loser:
+            second_tie = second_tie_loser
+        else:
+            second_tie = second_tie_winner
+        second_set = f"{second_winner}-{second_loser}({second_tie})"
+    elif second_winner != "None":
+        second_set = f"{second_winner}-{second_loser}"
+    else:
+        second_set = None
+    
+    if third_tie_winner != "None":
+        if third_tie_winner > third_tie_loser:
+            third_tie = third_tie_loser
+        else:
+            third_tie = third_tie_winner
+        third_set = f"{third_winner}-{third_loser}({third_tie})"
+    elif third_winner != "None":
+        third_set = f"{third_winner}-{third_loser}"
+    else:
+        third_set = None
+    
+    if third_set:
+        score = f"{first_set} {second_set} {third_set}"
+    elif second_set:
+        score = f"{first_set} {second_set}"
+    else:
+        score = f"{first_set}"
+    return score
