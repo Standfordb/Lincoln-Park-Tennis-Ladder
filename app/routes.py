@@ -52,15 +52,18 @@ def profile():
         # Get the id of the profile to pull up
         id = request.args.get('id')
         profile = h.get_profile(id)
+        user = h.get_user()
+        if not user:
+            user = h.No_user()
         if "USER" in session:
             try:
                 messages = h.get_private_messages(profile.id, session["USER"])
-                return render_template("profile.html", profile=profile, messages=messages)
+                return render_template("profile.html", profile=profile, messages=messages, user=user)
             except KeyError:
                 print("Exception caught! KeyError")
-                return render_template("profile.html", profile=profile)
+                return render_template("profile.html", profile=profile, user=user)
         else:
-            return render_template("profile.html", profile=profile)
+            return render_template("profile.html", profile=profile, user=user)
 
 # Logout button 
 @app.route("/logout")
