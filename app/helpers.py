@@ -1,6 +1,5 @@
 from flask import flash, session
 from app import db
-from app import routes as r
 from datetime import datetime
 import pytz
 import bcrypt
