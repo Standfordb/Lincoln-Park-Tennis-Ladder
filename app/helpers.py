@@ -107,9 +107,9 @@ class User(db.Model):
                 pass
             else:
                 if match.winner_id == self.id:
-                    wins += 1
-                else:
                     losses += 1
+                else:
+                    wins += 1
         h2h = f"{wins} wins | {losses} losses"
         return h2h
     
@@ -122,9 +122,9 @@ class User(db.Model):
             else:
                 if match.match_type == c.CHALLENGE:
                     if match.winner_id == self.id:
-                        wins += 1
+                        losses += 1
                     else:
-                        losses +=1
+                        wins +=1
         h2h = f"{wins} wins | {losses} losses"
         return h2h
                     

@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, session, url_for, flash
+from flask import render_template, request, redirect, session, flash
 from app import app
 import app.helpers as h
 import app.constants as c
