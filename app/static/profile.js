@@ -10,20 +10,26 @@ const notificationCol = document.getElementById("notification-col");
 const notificationBox = document.getElementById("notification-box");
 const h2hT = document.getElementById("h2h-t");
 const h2hC = document.getElementById("h2h-c");
+const confirmBtn = document.getElementById("confirm-btn");
+const inputBtn = document.getElementById("input-btn");
   
 
 
 if (user == '0') {
     notificationCol.style.display = "none";
     chatCol.style.display = "none";
-    h2hT.style.display = "none"
-    h2hC.style.display = "none"
+    h2hT.style.display = "none";
+    h2hC.style.display = "none";
+    inputBtn.style.display = "none";
+    confirmBtn.style.display = "none";
 } else if (user == profile) {
     chatCol.style.display = "none";
-    h2hT.style.display = "none"
-    h2hC.style.display = "none"
+    h2hT.style.display = "none";
+    h2hC.style.display = "none";
 } else {
     notificationCol.style.display = "none";
+    inputBtn.style.display = "none";
+    confirmBtn.style.display = "none";
 }
 
 
