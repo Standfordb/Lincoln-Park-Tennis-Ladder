@@ -63,7 +63,7 @@ class User(db.Model):
             win_rate = int((wins/matches)*100)
             win_rate = str(win_rate) + "%"
         else:
-            matches = "N/A"
+            win_rate = "N/A"
         return win_rate
     
     def chall_win_rate(self):
