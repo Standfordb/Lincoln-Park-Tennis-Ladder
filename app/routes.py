@@ -145,10 +145,10 @@ def confirm():
     if request.method == "GET":
         try:
             user = h.get_user()
-            temp_matches = h.get_temp_matches(session["USER"])
+            temp_matches = h.get_temp_matches(user.id)
             return render_template("confirm.html", temp_matches=temp_matches, user=user)
         except KeyError:
-            print("Exception caught! KeyError")
+            print("Couldn't find user when loading /confirm")
             return redirect("/")
     elif request.method == "POST":
         match_id = request.form.get("match_id")
