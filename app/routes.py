@@ -196,25 +196,3 @@ def edit():
 @app.route("/info")
 def info():
     return render_template("info.html")
-
-@app.route("/challenge")
-def challenge():
-    id = request.args.get("id")
-    recipient = h.User.query.filter_by(id=id).first()
-    user = h.get_user()
-    if recipient.challenge != None:
-        flash("Player currently has an open challenge. Please wait until it is completed to challenge this player.")
-        return redirect("/")
-    else:
-        h.create_notification(id, user.id, c.CHALLENGE)
-        user.challenge = id
-        h.db.session.commit()
-        return redirect("/")
-        
-
-@app.route("/cancel_challenge")
-def cancel_challenge():
-    user = h.get_user()
-    challenge_id = request.args.get("id")
-    h.cancel_challenge(user.id, challenge_id)
-    return redirect("/")
