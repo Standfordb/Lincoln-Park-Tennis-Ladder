@@ -70,25 +70,33 @@
                     <p id="h2h-t">
                         <span style="white-space: nowrap">
                             <strong>
-                                Head to Head (Total):
+                                You vs. {{ profile.first }} (Total):
                             </strong>
                         </span> 
                         <span style="white-space: nowrap">
-                            {{ profile.h2h(profile.id) }}
+                            {{ profile.h2h(user.id) }}
                         </span>
                     </p>
                     <p id="h2h-c">
                         <span style="white-space: nowrap">
                             <strong>
-                                Head to Head (Challenge):
+                                You vs. {{ profile.first }} (Challenge):
                             </strong>
                         </span> 
                         <span style="white-space: nowrap">
-                            {{ profile.chall_h2h(profile.id) }}
+                            {{ profile.chall_h2h(user.id) }}
                         </span>
                     </p>
                 </div>
             </div> 
+            <div class="row justify-content-center">
+                <div class="col-auto">
+                    <div><a href="/input"><button class="btn btn-secondary mb-1" type="button">Input Match Results</button></a></div>
+                </div>
+                <div class="col-auto">
+                    <div><a href="/confirm"><button class="btn btn-secondary" type="button">Confirm Match Results</button></a></div>
+                </div>
+            </div>
         </div>
     </div>
         <div class="row justify-content-center">
