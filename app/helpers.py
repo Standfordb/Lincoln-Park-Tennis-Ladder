@@ -645,19 +645,31 @@ def reset_challenge(user_id, chall_id):
 
 def format_score(first_winner, first_loser, first_tie_winner, first_tie_loser, second_winner, second_loser, second_tie_winner, second_tie_loser, third_winner, third_loser, third_tie_winner, third_tie_loser):
     if first_tie_winner != "None":
-        first_set = f"{first_winner}-{first_loser}({first_tie_winner}-{first_tie_loser})"
+        if first_tie_winner > first_tie_loser:
+            first_tie = first_tie_loser
+        else:
+            first_tie = first_tie_winner
+        first_set = f"{first_winner}-{first_loser}({first_tie})"
     else:
         first_set = f"{first_winner}-{first_loser}"
     
     if second_tie_winner != "None":
-        second_set = f"{second_winner}-{second_loser}({second_tie_winner}-{second_tie_loser})"
+        if second_tie_winner > second_tie_loser:
+            second_tie = second_tie_loser
+        else:
+            second_tie = second_tie_winner
+        second_set = f"{second_winner}-{second_loser}({second_tie})"
     elif second_winner != "None":
         second_set = f"{second_winner}-{second_loser}"
     else:
         second_set = None
     
     if third_tie_winner != "None":
-        third_set = f"{third_winner}-{third_loser}({third_tie_winner}-{third_tie_loser})"
+        if third_tie_winner > third_tie_loser:
+            third_tie = third_tie_loser
+        else:
+            third_tie = third_tie_winner
+        third_set = f"{third_winner}-{third_loser}({third_tie})"
     elif third_winner != "None":
         third_set = f"{third_winner}-{third_loser}"
     else:
@@ -669,8 +681,4 @@ def format_score(first_winner, first_loser, first_tie_winner, first_tie_loser, s
         score = f"{first_set} {second_set}"
     else:
         score = f"{first_set}"
-    print("first set =", first_set)
-    print("second set =", second_set)
-    print("third set =", third_set)
-    print("score =", score)
     return score
