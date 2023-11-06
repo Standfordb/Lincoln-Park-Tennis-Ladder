@@ -54,13 +54,16 @@ def profile():
         profile = h.get_profile(id)
         if "USER" in session:
             try:
-                messages = h.get_private_messages(profile.id, session["USER"])
-                return render_template("profile.html", profile=profile, messages=messages)
+                user = h.get_user()
+                messages = h.get_private_messages(profile.id, user.id)
+                return render_template("profile.html", profile=profile, messages=messages, user=user)
             except KeyError:
                 print("Exception caught! KeyError")
-                return render_template("profile.html", profile=profile)
+                user = h.No_user()
+                return render_template("profile.html", profile=profile, user=user)
         else:
-            return render_template("profile.html", profile=profile)
+            user = h.No_user()
+            return render_template("profile.html", profile=profile, user=user)
 
 # Logout button 
 @app.route("/logout")
