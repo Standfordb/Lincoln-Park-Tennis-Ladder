@@ -25,9 +25,9 @@ def index():
             except KeyError:
                 print("Exception caught! KeyError")
                 h.remove_session()
-                user = None
+                user = h.No_user()
         else:
-            user = None
+            user = h.No_user()
         messages = h.get_broadcast_messages()
         return render_template("index.html", players=players, pages=pages, user=user, spread=c.CHALLENGE_SPREAD, messages=messages)
     elif request.method == "POST":
