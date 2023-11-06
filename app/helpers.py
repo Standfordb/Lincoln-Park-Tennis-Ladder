@@ -270,7 +270,7 @@ def record_match(score, opponent_id, is_win, date, type, submit_by):
     date_played = datetime.strptime(date, "%Y-%m-%d")
 
     # Record the results
-    match = Temp_match(score=score, winner_id=winner_id, loser_id=loser_id, date_played=date_played, match_type=type, submit_by=session["USER"])
+    match = Temp_match(score=score, winner_id=winner_id, loser_id=loser_id, date_played=date_played, match_type=type, submit_by=submit_by)
 
     # Get user and opponent and connect them to the new match
     user = get_user()
@@ -303,10 +303,6 @@ def confirm_match(id):
 def validate_match_data(score, opponent_id, is_win, date_played, match_type):
     # Get the user who is submitting the match
     user = get_user()
-    # Find the possible opponents for this user
-    opponents = get_opponents(user.rank)
-    # Find the opponent user claims to have played
-    opponent = User.query.filter_by(id=opponent_id).first()
     # Set values to check is_win against
     win_check = ["0", "1"]
     # Make sure score format matches our regular expression
@@ -320,8 +316,8 @@ def validate_match_data(score, opponent_id, is_win, date_played, match_type):
         flash("Match date can not be in the future.")
         return False
     # Check if opponent matches possible opponents by rank
-    if match_type == "challenge":
-        if not opponent in opponents:
+    if match_type == c.CHALLENGE:
+        if opponent_id != user.challenge:
             return False
     # Check if win_against is a 0 or 1
     if is_win not in win_check:
