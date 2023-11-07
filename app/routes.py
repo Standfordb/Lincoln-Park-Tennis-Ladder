@@ -267,7 +267,7 @@ def challenge():
         h.create_notification(id, user.id, c.CHALLENGE)
         user.challenge = id
         h.db.session.commit()
-        email_body = f"You have been challenged to a match on the Lincoln Park Tennis Ladder by {user.first} {user.last}! Please head over to lptennisladder.com to accept this challenge. Then reach out to {user.first} by email({user.email} or phone{user.phone}) and schedule your match! Play your best and have fun!"
+        email_body = f"You have been challenged to a match on the Lincoln Park Tennis Ladder by {user.first} {user.last}! Please head over to lptennisladder.com to accept this challenge. Then reach out to {user.first} by email ({user.email}) or phone ({user.phone}) and schedule your match! Play your best and have fun!"
         h.send_email(c.EMAIL_TITLE["CHALLENGE"], email_body, recipient.email)
         return redirect("/")
         
