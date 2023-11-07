@@ -118,7 +118,12 @@ def input():
         third_loser = request.form.get("3rd-loser")
         third_tie_winner = request.form.get("3rd-tie-winner")
         third_tie_loser = request.form.get("3rd-tie-loser")
-        score = h.format_score(first_winner, first_loser, first_tie_winner, first_tie_loser, second_winner, second_loser, second_tie_winner, second_tie_loser, third_winner, third_loser, third_tie_winner, third_tie_loser)
+        try:
+            score = h.format_score(first_winner, first_loser, first_tie_winner, first_tie_loser, second_winner, second_loser, second_tie_winner, second_tie_loser, third_winner, third_loser, third_tie_winner, third_tie_loser)
+        except:
+            flash("Problem recording match. Please try again")
+            print("Exception caught in format score function")
+            return redirect("/input")
         opponent_id = request.form.get("opponent")
         is_win = request.form.get("is_win")
         date_played = request.form.get("date_played")
@@ -130,11 +135,11 @@ def input():
             flash("Please fill out all fields.")
             return redirect("/input")
         # Make sure data has not been tampered with client-side
-        elif not h.validate_match_data(score, opponent_id, is_win, date_played, match_type):
+        elif not h.validate_match_data(opponent_id, is_win, date_played, match_type):
             flash("Problem recording match. Please try again")
             return redirect("/input")
         else:
-            # If all looks good, record the match to Temp_match database to await confirmation
+            # If all looks good, record the match to Temp_match database to await confirmation    
             h.record_match(score, opponent_id, is_win, date_played, match_type, session["USER"])
             h.create_notification(opponent_id, session["USER"], c.MATCH_REPORTED)
             return redirect("/redirect_profile")

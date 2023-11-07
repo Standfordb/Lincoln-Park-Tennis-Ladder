@@ -300,16 +300,11 @@ def confirm_match(id):
     return match
 
 # Validate match data
-def validate_match_data(score, opponent_id, is_win, date_played, match_type):
+def validate_match_data(opponent_id, is_win, date_played, match_type):
     # Get the user who is submitting the match
     user = get_user()
     # Set values to check is_win against
     win_check = ["0", "1"]
-    # Make sure score format matches our regular expression
-    regex = re.compile("^\d-\d(\(\d?\d-\d?\d\))?$|^\d-\d(\(\d?\d-\d?\d\))?\s\d-\d(\(\d?\d-\d?\d\))?$|^\d-\d(\(\d?\d-\d?\d\))?\s\d-\d(\(\d?\d-\d?\d\))?\s\d-\d(\(\d?\d-\d?\d\))?$")
-    p = regex.match(score)
-    if p == None:
-        return False
     # Set the date to a date type
     match_date = datetime.strptime(date_played, "%Y-%m-%d")
     if match_date > datetime.today():
@@ -645,7 +640,10 @@ def format_score(first_winner, first_loser, first_tie_winner, first_tie_loser, s
             first_tie = first_tie_loser
         else:
             first_tie = first_tie_winner
-        first_set = f"{first_winner}-{first_loser}({first_tie})"
+        if first_winner != "None":
+            first_set = f"{first_winner}-{first_loser}({first_tie})"
+        else:
+            first_set= f"({first_tie_winner}-{first_tie_loser})"
     else:
         first_set = f"{first_winner}-{first_loser}"
     
@@ -654,7 +652,10 @@ def format_score(first_winner, first_loser, first_tie_winner, first_tie_loser, s
             second_tie = second_tie_loser
         else:
             second_tie = second_tie_winner
-        second_set = f"{second_winner}-{second_loser}({second_tie})"
+        if second_winner != "None":
+            second_set = f"{second_winner}-{second_loser}({second_tie})"
+        else:
+            second_set = f"({second_tie_winner}-{second_tie_loser})"
     elif second_winner != "None":
         second_set = f"{second_winner}-{second_loser}"
     else:
@@ -665,16 +666,34 @@ def format_score(first_winner, first_loser, first_tie_winner, first_tie_loser, s
             third_tie = third_tie_loser
         else:
             third_tie = third_tie_winner
-        third_set = f"{third_winner}-{third_loser}({third_tie})"
+        if third_winner != "None":
+            third_set = f"{third_winner}-{third_loser}({third_tie})"
+        else:
+            third_set = f"{third_tie_winner}-{third_tie_loser}"
     elif third_winner != "None":
         third_set = f"{third_winner}-{third_loser}"
     else:
         third_set = None
-    
+
+    regex = re.compile("^\d-\d(\(\d?\d\))?$|^\(\d?\d-\d?\d\)$")
+    one = regex.match(first_set)
+        
     if third_set:
-        score = f"{first_set} {second_set} {third_set}"
+        three = regex.match(third_set)
+        two = regex.match(second_set)
+        if one and two and three:
+            score = f"{first_set} {second_set} {third_set}"
+        else:
+            score = None
     elif second_set:
-        score = f"{first_set} {second_set}"
+        two = regex.match(second_set)
+        if one and two:
+            score = f"{first_set} {second_set}"
+        else:
+            score = None
     else:
-        score = f"{first_set}"
+        if one:
+            score = f"{first_set}"
+        else:
+            score = None
     return score
