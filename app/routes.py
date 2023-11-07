@@ -106,6 +106,7 @@ def input():
             return redirect("/")
     elif request.method == "POST":
         # Get the data from the form
+        user = h.get_user()
         first_winner = request.form.get("1st-winner")
         first_loser = request.form.get("1st-loser")
         first_tie_winner = request.form.get("1st-tie-winner")
@@ -138,12 +139,26 @@ def input():
         elif not h.validate_match_data(opponent_id, is_win, date_played, match_type):
             flash("Problem recording match. Please try again")
             return redirect("/input")
+        elif match_type == c.CHALLENGE:
+            temp_match = h.Temp_match.query.filter_by(match_type=c.CHALLENGE).all()
+            for match in temp_match:
+                if match.winner_id or match.loser_id == user.id:
+                    flash("This match has already been input.")
+                    return redirect("/input")
+            # If all looks good, record the match to Temp_match database to await confirmation    
+            h.record_match(score, opponent_id, is_win, date_played, match_type, session["USER"])
+            h.create_notification(opponent_id, session["USER"], c.MATCH_REPORTED)
+            recipient = h.User.query.filter_by(id=opponent_id).first()
+            email_body = f"Your recent match results have been input by {user.first} {user.last}. Please head over to lptennisladder.com to confirm these results. Thank you!"
+            h.send_email(c.EMAIL_TITLE["RESULTS"], email_body, recipient.email)
+            return redirect("/redirect_profile")
         else:
             # If all looks good, record the match to Temp_match database to await confirmation    
             h.record_match(score, opponent_id, is_win, date_played, match_type, session["USER"])
             h.create_notification(opponent_id, session["USER"], c.MATCH_REPORTED)
             recipient = h.User.query.filter_by(id=opponent_id).first()
-            h.send_email(c.EMAIL_TITLE["RESULTS"], c.EMAIL_BODY["RESULTS"], recipient.email)
+            email_body = f"Your recent match results have been input by {user.first} {user.last}. Please head over to lptennisladder.com to confirm these results. Thank you!"
+            h.send_email(c.EMAIL_TITLE["RESULTS"], email_body, recipient.email)
             return redirect("/redirect_profile")
 
 # Route to confirm and entry in the Temp_match database and commit it to the Matches database
@@ -249,10 +264,11 @@ def challenge():
         flash("Player currently has an open challenge. Please wait until it is completed to challenge this player.")
         return redirect("/")
     else:
-        h.send_email(c.EMAIL_TITLE["CHALLENGE"], c.EMAIL_BODY["CHALLENGE"], recipient.email)
         h.create_notification(id, user.id, c.CHALLENGE)
         user.challenge = id
         h.db.session.commit()
+        email_body = f"You have been challenged to a match on the Lincoln Park Tennis Ladder by {user.first} {user.last}! Please head over to lptennisladder.com to accept this challenge. Then reach out to {user.first} by email({user.email} or phone{user.phone}) and schedule your match! Play your best and have fun!"
+        h.send_email(c.EMAIL_TITLE["CHALLENGE"], email_body, recipient.email)
         return redirect("/")
         
 
@@ -261,6 +277,11 @@ def cancel_challenge():
     user = h.get_user()
     challenge_id = request.args.get("id")
     recipient = h.User.query.filter_by(id=challenge_id).first()
-    h.send_email(c.EMAIL_TITLE["CANCELED"], c.EMAIL_BODY["CANCELED"], recipient.email)
     h.cancel_challenge(user.id, challenge_id)
+    if recipient.challenge != user.id:
+        email_body = f"{user.first} {user.last} has rescinded their challenge. Please reach out to them if you feel this has been done in error."
+        h.send_email(c.EMAIL_TITLE["CANCELED"], email_body, recipient.email)
+    else:
+        email_body = f"Your challenge match has been cancelled by {user.first} {user.last}. Please reach out to them if you feel this has been done in error."
+        h.send_email(c.EMAIL_TITLE["CANCELED"], email_body, recipient.email)
     return redirect("/")
