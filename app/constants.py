@@ -27,3 +27,15 @@ MATCH_REPORTED = "MATCH REPORTED"
 MATCH_CONFIRMED = "MATCH CONFIRMED"
 CHALL_CANCEL = "CHALLENGE CANCELED"
 DISPUTE = "DISPUTE"
+
+EMAIL_TITLE = {
+    "CHALLENGE": "You have been challenged!",
+    "RESULTS": "Your match results have been input!",
+    "CANCELED": "Your challenge match has been canceled!"
+}
+
+EMAIL_BODY = {
+    "CHALLENGE": "You have been challenged to a match on the Lincoln Park Tennis Ladder! Please head over to LPTennisLadder.com to accept this challenge. Play your best and have fun!",
+    "RESULTS": "Your recent match results have been input by your opponent. Please head over to LPTennisLadder.com to confirm these results. Thank you!",
+    "CANCELED": "Your challenge match has been cancelled by your opponent. Please reach out to them if you feel this has been done in error."
+}

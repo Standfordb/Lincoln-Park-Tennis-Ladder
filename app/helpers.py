@@ -1,4 +1,5 @@
 from flask import flash, session
+from flask_mailman import EmailMessage
 from app import db
 from app import routes as r
 from datetime import datetime
@@ -312,7 +313,7 @@ def validate_match_data(opponent_id, is_win, date_played, match_type):
         return False
     # Check if opponent matches possible opponents by rank
     if match_type == c.CHALLENGE:
-        if opponent_id != user.challenge:
+        if int(opponent_id) != user.challenge:
             return False
     # Check if win_against is a 0 or 1
     if is_win not in win_check:
@@ -697,3 +698,13 @@ def format_score(first_winner, first_loser, first_tie_winner, first_tie_loser, s
         else:
             score = None
     return score
+
+def send_email(title, body, recipient):
+    email = EmailMessage(
+        title,
+        body,
+        "lptennisladder@gmail.com",
+        [recipient]
+    )
+    email.send()
+    return

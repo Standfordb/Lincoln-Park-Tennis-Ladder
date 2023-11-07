@@ -142,6 +142,8 @@ def input():
             # If all looks good, record the match to Temp_match database to await confirmation    
             h.record_match(score, opponent_id, is_win, date_played, match_type, session["USER"])
             h.create_notification(opponent_id, session["USER"], c.MATCH_REPORTED)
+            recipient = h.User.query.filter_by(id=opponent_id).first()
+            h.send_email(c.EMAIL_TITLE["RESULTS"], c.EMAIL_BODY["RESULTS"], recipient.email)
             return redirect("/redirect_profile")
 
 # Route to confirm and entry in the Temp_match database and commit it to the Matches database
@@ -247,6 +249,7 @@ def challenge():
         flash("Player currently has an open challenge. Please wait until it is completed to challenge this player.")
         return redirect("/")
     else:
+        h.send_email(c.EMAIL_TITLE["CHALLENGE"], c.EMAIL_BODY["CHALLENGE"], recipient.email)
         h.create_notification(id, user.id, c.CHALLENGE)
         user.challenge = id
         h.db.session.commit()
@@ -257,5 +260,7 @@ def challenge():
 def cancel_challenge():
     user = h.get_user()
     challenge_id = request.args.get("id")
+    recipient = h.User.query.filter_by(id=challenge_id).first()
+    h.send_email(c.EMAIL_TITLE["CANCELED"], c.EMAIL_BODY["CANCELED"], recipient.email)
     h.cancel_challenge(user.id, challenge_id)
     return redirect("/")
