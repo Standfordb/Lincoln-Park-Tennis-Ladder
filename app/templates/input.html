@@ -17,6 +17,7 @@
                 <div class="col-10 col-md-6 p-3">
         <form action="/input" method="post">
                 <fieldset>
+                    <input type="hidden" name="type" id="type" value="CHALLENGE">
                     <div class="row">
                         <div class="col-4 text-start">
                             <strong>1st Set: </strong>
@@ -155,12 +156,12 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <input class="form-check-input" name="type" id="friendly" type="checkbox" value="Friendly" autocomplete="off">
+                        <input class="form-check-input" id="friendly" type="checkbox" autocomplete="off">
                         <label for="friendly" class="form-check-label">Friendly</label>
                     </div>
                     <div class="mb-3" id="challenge-opponents">
                         <label for="opponent" class="form-label"><strong>Opponent: </strong></label>
-                        <select class="form-control" name="opponent" id="chall-opps" required>
+                        <select class="form-control" name="chall-opp" id="chall-opps">
                             {% if opponent %}
                                 <option value="{{ opponent.id }}">{{ opponent.first }} {{ opponent.last }} - Rank {{ opponent.rank }}</option>
                             {% else %}
@@ -170,7 +171,7 @@
                     </div>
                     <div class="mb-3" id="friendly-opponents" style="display: none">
                         <label for="opponent" class="form-label"><strong>Opponent: </strong></label>
-                        <select class="form-control" name="opponent" id="friendly-opps" required>
+                        <select class="form-control" name="friendly-opp" id="friendly-opps">
                             <option value="None" selected disabled>Select an opponent</option>
                             {% for friendly in friendlies|sort(attribute='rank') %}
                                 <option value="{{ friendly.id }}">{{ friendly.first }} {{ friendly.last }} - Rank {{ friendly.rank }}</option>

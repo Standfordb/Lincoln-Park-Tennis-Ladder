@@ -125,12 +125,15 @@ def input():
             flash("Problem recording match. Please try again")
             print("Exception caught in format score function")
             return redirect("/input")
-        opponent_id = request.form.get("opponent")
+        chall_opp = request.form.get("chall-opp")
+        friendly_opp = request.form.get("friendly-opp")
         is_win = request.form.get("is_win")
         date_played = request.form.get("date_played")
         match_type = request.form.get("type")
-        if not match_type:
-            match_type = c.CHALLENGE
+        if match_type == c.CHALLENGE:
+            opponent_id = chall_opp
+        else:
+            opponent_id = friendly_opp
         # Make sure no data is missing
         if not score or not opponent_id or not is_win or not date_played:
             flash("Please fill out all fields.")
