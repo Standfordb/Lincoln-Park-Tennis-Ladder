@@ -1,7 +1,6 @@
-from flask import session, request, flash
+from flask import session
 from flask_socketio import emit, join_room, leave_room
 from app.extensions import socketio
-from app import routes as r
 import app.helpers as h
 import app.constants as c
 

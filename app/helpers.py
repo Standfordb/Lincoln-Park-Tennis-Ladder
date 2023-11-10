@@ -1,7 +1,5 @@
 from flask import flash, session
-from flask_mailman import EmailMessage
 from app import db
-from app import routes as r
 from datetime import datetime
 from redmail import gmail
 import pytz
