@@ -60,7 +60,33 @@
                                 <td>
                                     {% if user.challenge == None %}
                                         {% if player.rank - user.rank in range(-spread, 0) %}
-                                            <a href="/challenge?id={{ player.id }}"><button class="btn btn-secondary">Challenge!</button></a>
+                                            <!-- <a href="/challenge?id={{ player.id }}"><button class="btn btn-secondary">Challenge!</button></a> -->
+                                            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#chall-modal-{{ player.id }}">
+                                                Challenge
+                                              </button>
+                                              
+                                              <!-- Modal -->
+                                              <div class="modal fade" id="chall-modal-{{ player.id }}" tabindex="-1" aria-labelledby="chall-modal-label" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                  <div class="modal-content text-bg-secondary">
+                                                    <div class="modal-header">
+                                                      <h1 class="modal-title fs-5" id="exampleModalLabel">Add a message to your challenge:</h1>
+                                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <form action="/challenge" method="POST">
+                                                        <div class="modal-body">
+                                                            <input class="form-control" type="text" name="email-msg" placeholder="Message {{ player.first }}" autocomplete="off">
+                                                            <input type="hidden" name="opp" value="{{ player.id }}">
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-dark">Send Challenge</button>
+                                                        </div>
+                                                    </form>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                              
                                         {% endif %}
                                     {% else %}
                                         {% if user.challenge == player.id %}

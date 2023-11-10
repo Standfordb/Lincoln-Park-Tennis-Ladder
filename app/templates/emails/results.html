@@ -1,0 +1,26 @@
+<html>
+    <head></head>
+    <body>
+        <h2>
+            Hi {{ recipient.first }},
+        </h2>
+        <p>
+            Your recent match results have been reported by {{ user.first }} {{ user.last }}!
+        </p>
+        <p>
+            Please head over to
+            <a href="lptennisladder.com">
+                LPTennisLadder.com
+            </a>
+            to confirm these results!
+        </p>
+        <p>
+            If needed you can contact {{ user.first }} here:<br>
+            Email: {{ user.email }}<br>
+            Phone: {{ user.phone }}
+        </p>
+        <p>
+            Thank you!
+        </p>
+    </body>
+</html>

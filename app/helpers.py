@@ -3,11 +3,15 @@ from flask_mailman import EmailMessage
 from app import db
 from app import routes as r
 from datetime import datetime
+from redmail import gmail
 import pytz
 import bcrypt
 import re
 import app.constants as c
 import math
+
+gmail.username = "lptennisladder"
+gmail.password = "swcm dtum jlqr ltzr"
 
 
 
@@ -700,11 +704,10 @@ def format_score(first_winner, first_loser, first_tie_winner, first_tie_loser, s
     return score
 
 def send_email(title, body, recipient):
-    email = EmailMessage(
-        title,
-        body,
-        "lptennisladder@gmail.com",
-        [recipient]
-    )
-    email.send()
+    gmail.send(
+        sender = "lptennisladder@gmail.com",
+        receivers = recipient,
+        subject = title,
+        html = body
+        )
     return

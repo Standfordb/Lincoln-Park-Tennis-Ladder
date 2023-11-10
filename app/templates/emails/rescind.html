@@ -1,0 +1,22 @@
+<html>
+    <head></head>
+    <body>
+        <h2>
+            Hi {{ recipient.first }},
+        </h2>
+        <p>
+            {{ user.first }} {{ user.last }} has rescinded their challenge. Please reach out to them if you feel this has been done in error.
+        </p>
+        <p>
+            You can contact {{ user.first }} here:<br>
+            Email: {{ user.email }}<br>
+            Phone: {{ user.phone }}
+        </p>
+        <span style="font-size: .6rem">
+            ~
+            <a href="lptennisladder.com">
+                LPTennisLadder.com
+            </a>
+        </span>
+    </body>
+</html>

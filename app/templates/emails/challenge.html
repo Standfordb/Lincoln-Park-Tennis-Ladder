@@ -1,0 +1,26 @@
+<html>
+    <head></head>
+    <body>
+        <h2>Hi {{ recipient.first }}!</h2>
+        <p>You have been <strong>challenged</strong> to a match on the Lincoln Park Tennis Ladder by {{ user.first }} {{ user.last }}!</p>
+        <p>Here's a message from your opponent:</p>
+        <blockquote style="background: #444444; color: #dfdfdf; width: 50%; border-radius: 5px; padding: 5px">
+            "{{ msg }}"
+            <br>
+            ~{{ user.first }}
+        </blockquote>
+        <br>
+        <p>
+            Please head over to <a href="lptennisladder.com">LPTennisLadder.com</a> to accept this challenge.
+        </p>
+        <p>
+            You can contact {{ user.first }} here:<br>
+            Email: {{ user.email }}<br>
+            Phone: {{ user.phone }}
+        </p>
+
+        <p>Play your best and have fun!</p>
+        <br>
+        <span style="font-size: .6rem">(Please do not respond directly to this email.)</span>
+    </body>
+</html>

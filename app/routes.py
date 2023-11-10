@@ -152,7 +152,7 @@ def input():
             h.record_match(score, opponent_id, is_win, date_played, match_type, session["USER"])
             h.create_notification(opponent_id, session["USER"], c.MATCH_REPORTED)
             recipient = h.User.query.filter_by(id=opponent_id).first()
-            email_body = f"Your recent match results have been input by {user.first} {user.last}. Please head over to lptennisladder.com to confirm these results. Thank you!"
+            email_body = render_template("emails/results.html", recipient=recipient, user=user)
             h.send_email(c.EMAIL_TITLE["RESULTS"], email_body, recipient.email)
             return redirect("/redirect_profile")
         else:
@@ -160,7 +160,7 @@ def input():
             h.record_match(score, opponent_id, is_win, date_played, match_type, session["USER"])
             h.create_notification(opponent_id, session["USER"], c.MATCH_REPORTED)
             recipient = h.User.query.filter_by(id=opponent_id).first()
-            email_body = f"Your recent match results have been input by {user.first} {user.last}. Please head over to lptennisladder.com to confirm these results. Thank you!"
+            email_body = render_template("emails/results.html", recipient=recipient, user=user)
             h.send_email(c.EMAIL_TITLE["RESULTS"], email_body, recipient.email)
             return redirect("/redirect_profile")
 
@@ -258,9 +258,12 @@ def info():
     user = h.get_user()
     return render_template("info.html", user=user)
 
-@app.route("/challenge")
+@app.route("/challenge", methods=["POST"])
 def challenge():
-    id = request.args.get("id")
+    id = request.form.get("opp")
+    msg = request.form.get("email-msg").strip()
+    if not msg:
+        msg = "I challenge you to a ladder match!"
     recipient = h.User.query.filter_by(id=id).first()
     user = h.get_user()
     if recipient.challenge != None:
@@ -270,7 +273,7 @@ def challenge():
         h.create_notification(id, user.id, c.CHALLENGE)
         user.challenge = id
         h.db.session.commit()
-        email_body = f"You have been challenged to a match on the Lincoln Park Tennis Ladder by {user.first} {user.last}! Please head over to lptennisladder.com to accept this challenge. Then reach out to {user.first} by email ({user.email}) or phone ({user.phone}) and schedule your match! Play your best and have fun!"
+        email_body = render_template("emails/challenge.html", recipient=recipient, user=user, msg=msg)
         h.send_email(c.EMAIL_TITLE["CHALLENGE"], email_body, recipient.email)
         return redirect("/")
         
@@ -280,11 +283,13 @@ def cancel_challenge():
     user = h.get_user()
     challenge_id = request.args.get("id")
     recipient = h.User.query.filter_by(id=challenge_id).first()
-    h.cancel_challenge(user.id, challenge_id)
     if recipient.challenge != user.id:
-        email_body = f"{user.first} {user.last} has rescinded their challenge. Please reach out to them if you feel this has been done in error."
-        h.send_email(c.EMAIL_TITLE["CANCELED"], email_body, recipient.email)
+        email_body = render_template("emails/rescind.html", recipient=recipient, user=user)
+        email_title = c.EMAIL_TITLE["RESCIND"]
     else:
-        email_body = f"Your challenge match has been cancelled by {user.first} {user.last}. Please reach out to them if you feel this has been done in error."
-        h.send_email(c.EMAIL_TITLE["CANCELED"], email_body, recipient.email)
+        email_body = render_template("emails/cancel.html", recipient=recipient, user=user)
+        email_title = c.EMAIL_TITLE["CANCEL"]
+
+    h.cancel_challenge(user.id, challenge_id)
+    h.send_email(email_title, email_body, recipient.email)
     return redirect("/")
