@@ -8,10 +8,10 @@ app = Flask(__name__)
 app.secret_key = "Sb39MDCIyj1kWgEKVzpmkQ"
 
 # Production Server:
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:Wj7gWQuu849VNDMYSY3j@containers-us-west-191.railway.app:7456/railway"
+app.config["SQLALCHEMY_DATABASE_URI"] =  "postgresql://postgres:cgd2ecFCaE4a4cGA4Dc61GCAEFB5DGF4@viaduct.proxy.rlwy.net:57688/railway"
 
 # Development Server:
-#app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:h6CIkVq5BOGYvuf9bYWd@containers-us-west-76.railway.app:6936/railway"
+#app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:dE4G1Aa46D3Efaa3fGcBb664BFCf5E3A@monorail.proxy.rlwy.net:49454/railway"
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.app_context().push()
